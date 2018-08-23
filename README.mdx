@@ -1,0 +1,30 @@
+---
+name: README
+route: '/'
+---
+
+import { Playground } from 'docz'
+
+import { CoralRTE, Bold, Italic, Blockquote } from "./";
+
+# Introduction
+
+CoralRTE is a lightweight and extensible Rich Text Editor based on React.
+
+## Installation
+
+```bash
+npm install @coralproject/coral-rte --save-dev
+```
+
+## Demo
+<Playground>
+  <CoralRTE
+    features={[
+      <Bold />,
+      <Italic />,
+      <Blockquote />,
+    ]}
+  />
+</Playground>
+

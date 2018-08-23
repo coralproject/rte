@@ -1,0 +1,13 @@
+node_modules
+dist
+.env
+npm-debug.log*
+yarn-error.log
+yarn.lock
+coverage
+
+.idea/
+.vs
+.docz
+*.swp
+*.DS_STORE

@@ -1,0 +1,18 @@
+{
+  "name": "@coralproject/coral-rte",
+  "version": "0.9.0",
+  "description": "Coral Rich Text Editor",
+  "main": "index.js",
+  "author": "The Coral Project Team <coral@mozillafoundation.org>",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "classnames": "^2.2.6",
+    "docz": "^0.10.3",
+    "docz-plugin-css": "^0.10.3",
+    "react": "^16.4.2",
+    "react-contenteditable": "^2.1.5"
+  },
+  "dependencies": {
+    "bowser": "^2.0.0-beta.1"
+  }
+}
