@@ -3,14 +3,15 @@ import React, { ButtonHTMLAttributes } from "react";
 
 import styles from "./Button.css";
 
-interface PropTypes extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonPropTypes
+  extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
   activeClassName?: string;
   children?: React.ReactNode;
   active?: boolean;
 }
 
-class Button extends React.Component<PropTypes> {
+class Button extends React.Component<ButtonPropTypes> {
   public render() {
     const {
       className,

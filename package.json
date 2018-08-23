@@ -1,16 +1,32 @@
 {
-  "name": "@coralproject/coral-rte",
+  "name": "@coralproject/rte",
   "version": "0.9.0",
   "description": "Coral Rich Text Editor",
-  "main": "index.js",
   "author": "The Coral Project Team <coral@mozillafoundation.org>",
   "license": "Apache-2.0",
+  "files": [
+    "lib",
+    "cjs"
+  ],
+  "module": "./lib/index.js",
+  "main": "./cjs/index.js",
+  "typings": "./lib/index.d.ts",
+  "scripts": {
+    "build": "gulp",
+    "lint": "tsc --noEmit && tslint --project ./tsconfig.json",
+    "release": "npm version -m '@coralproject/rte release %s'"
+  },
   "devDependencies": {
     "@types/classnames": "^2.2.6",
     "@types/lodash": "^4.14.116",
     "classnames": "^2.2.6",
+    "del": "^3.0.0",
     "docz": "^0.10.3",
     "docz-plugin-css": "^0.10.3",
+    "gulp": "^4.0.0",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-typescript": "^5.0.0-alpha.3",
+    "merge2": "^1.2.2",
     "react": "^16.4.2",
     "react-contenteditable": "^2.1.5",
     "tslint": "^5.11.0",

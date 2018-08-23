@@ -4,7 +4,7 @@ import Button from "../components/Button";
 import { API } from "../lib/api";
 import { Feature } from "../RTE";
 
-interface PropTypes {
+export interface TogglePropTypes {
   api: API;
   className?: string;
   title?: string;
@@ -37,7 +37,8 @@ const createToggle = (
     isDisabled = () => false,
   }: CreateToggleOptions = {}
 ) => {
-  class Toggle extends React.Component<PropTypes, State> implements Feature {
+  class Toggle extends React.Component<TogglePropTypes, State>
+    implements Feature {
     public state = {
       active: false,
       disabled: false,
@@ -101,7 +102,7 @@ const createToggle = (
     }
   }
 
-  return Toggle as ComponentClass<PropTypes>;
+  return Toggle as ComponentClass<TogglePropTypes>;
 };
 
 export default createToggle;

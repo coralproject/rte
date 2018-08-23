@@ -43,6 +43,6 @@
     "prefer-for-of": false
   },
   "linterOptions": {
-    "exclude": ["**/node_modules/**/*"]
+    "exclude": ["**/node_modules/**/*", "lib/**", "cjs/**"]
   }
 }
