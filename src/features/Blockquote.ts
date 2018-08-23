@@ -33,8 +33,8 @@ function isActive(this: API) {
   return this.focused && !!findIntersecting("BLOCKQUOTE", this.container);
 }
 
-function onEnter(this: API, node: HTMLElement) {
-  if (node.tagName !== "BLOCKQUOTE") {
+function onEnter(this: API, node: Node) {
+  if ((node as Element).tagName !== "BLOCKQUOTE") {
     return false;
   }
   insertNewLineAfterNode(node, true);

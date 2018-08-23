@@ -18,10 +18,10 @@ interface State {
 }
 
 interface CreateToggleOptions {
-  onEnter?: (this: any, node: HTMLElement) => boolean;
-  onShortcut?: (this: any, e: KeyboardEvent) => boolean;
-  isActive?: (this: any) => boolean;
-  isDisabled?: (this: any) => boolean;
+  onEnter?: (this: API, node: Node) => boolean;
+  onShortcut?: (this: API, e: KeyboardEvent) => boolean;
+  isActive?: (this: API) => boolean;
+  isDisabled?: (this: API) => boolean;
 }
 
 /**

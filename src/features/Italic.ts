@@ -19,13 +19,14 @@ function isDisabled(this: API) {
   // Disable whenever the italic styling came from a different
   // tag than those we control.
   return !!findIntersecting(
-    (n: HTMLElement) =>
+    (n: Node) =>
       n.nodeName !== "#text" &&
-      window.getComputedStyle(n).getPropertyValue("font-style") === "italic" &&
-      !italicTags.includes(n.tagName) &&
+      window.getComputedStyle(n as Element).getPropertyValue("font-style") ===
+        "italic" &&
+      !italicTags.includes((n as Element).tagName) &&
       !findAncestor(
         n,
-        (node: HTMLElement) => italicTags.includes(node.tagName),
+        (node: Node) => italicTags.includes((node as Element).tagName),
         this.container
       ),
     this.container

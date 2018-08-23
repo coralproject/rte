@@ -21,7 +21,7 @@ import Undo from "./lib/undo";
 import styles from "./RTE.css";
 
 export interface Feature {
-  onEnter?: (node: HTMLElement) => boolean;
+  onEnter?: (node: Node) => boolean;
   onShortcut?: (e: KeyboardEvent) => boolean;
   isActive?: () => boolean;
   isDisabled?: () => boolean;
@@ -144,9 +144,9 @@ class RTE extends React.Component<PropTypes> {
     // TODO: don't rely on this hack.
     // It removes all `style` attr that
     // remaining execCommand still add.
-    traverse(this.ref.htmlEl, (n: HTMLElement) => {
+    traverse(this.ref.htmlEl, (n: Node) => {
       // tslint:disable-next-line:no-unused-expression
-      n.removeAttribute && n.removeAttribute("style");
+      (n as Element).removeAttribute && (n as Element).removeAttribute("style");
     });
 
     if (this.props.onChange) {
@@ -224,7 +224,7 @@ class RTE extends React.Component<PropTypes> {
   private handlePaste = (e: ClipboardEvent) => {
     // Get text representation of clipboard
     // This works cross browser.
-    const text = (
+    const text: string = (
       ((e as any).originalEvent || e).clipboardData ||
       (window as any).clipboardData
     ).getData("Text");
@@ -292,7 +292,7 @@ class RTE extends React.Component<PropTypes> {
     return;
   };
 
-  private restoreCheckpoint(html: string, node: HTMLElement, range: Range) {
+  private restoreCheckpoint(html: string, node: Node, range: Range) {
     if (node && range) {
       // We need to clone it, otherwise we'll mutate
       // that original one which can still be in the undo stack.

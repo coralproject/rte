@@ -21,13 +21,14 @@ function isDisabled(this: API) {
   // Disable whenever the bold styling came from a different
   // tag than those we control.
   return !!findIntersecting(
-    (n: HTMLElement) =>
+    (n: Node) =>
       n.nodeName !== "#text" &&
-      window.getComputedStyle(n).getPropertyValue("font-weight") === "bold" &&
-      !boldTags.includes(n.tagName) &&
+      window.getComputedStyle(n as Element).getPropertyValue("font-weight") ===
+        "bold" &&
+      !boldTags.includes((n as Element).tagName) &&
       !findAncestor(
         n,
-        (node: HTMLElement) => boldTags.includes(node.tagName),
+        (node: Node) => boldTags.includes((node as Element).tagName),
         this.container
       ),
     this.container
