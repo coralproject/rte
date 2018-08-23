@@ -1,17 +1,17 @@
-import { isSelectionInside, selectEndOfNode } from '../lib/dom';
+import { isSelectionInside, selectEndOfNode } from "../lib/dom";
 
 /**
  * An instance of API is passed to all the buttons to
  * interact with RTE, which servers as a clean abstraction.
  */
 function createAPI(
-  getContainer,
-  broadcastChange,
-  canUndo,
-  canRedo,
-  undo,
-  redo,
-  getFocused
+  getContainer: () => HTMLElement,
+  broadcastChange: () => void,
+  canUndo: () => boolean,
+  canRedo: () => boolean,
+  undo: () => void,
+  redo: () => void,
+  getFocused: () => boolean
 ) {
   return {
     broadcastChange,
@@ -31,7 +31,7 @@ function createAPI(
       // prevents an undesired scroll jump.
       if (!isSelectionInside(this.container)) {
         if (this.container.childNodes.length === 0) {
-          this.container.appendChild(document.createTextNode(''));
+          this.container.appendChild(document.createTextNode(""));
         }
         selectEndOfNode(this.container);
       }
@@ -42,5 +42,7 @@ function createAPI(
     },
   };
 }
+
+export type API = ReturnType<typeof createAPI>;
 
 export default createAPI;

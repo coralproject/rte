@@ -5,7 +5,7 @@ route: '/'
 
 import { Playground } from 'docz'
 
-import { CoralRTE, Bold, Italic, Blockquote } from "./";
+import { CoralRTE, Bold, Italic, Blockquote } from "./src";
 
 # Introduction
 
@@ -21,9 +21,9 @@ npm install @coralproject/coral-rte --save-dev
 <Playground>
   <CoralRTE
     features={[
-      <Bold />,
-      <Italic />,
-      <Blockquote />,
+      <Bold key="bold" />,
+      <Italic key="italic" />,
+      <Blockquote key="blockquote" />,
     ]}
   />
 </Playground>

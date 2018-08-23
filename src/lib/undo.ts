@@ -7,46 +7,46 @@ export default class Undo {
    * The last value of this stack represent
    * the most recent change.
    */
-  undoStack = [];
-  redoStack = [];
-  size;
+  private undoStack: any[][] = [];
+  private redoStack: any[][] = [];
+  private size: number;
 
   constructor(size = 100) {
     this.size = size;
   }
 
-  clear() {
+  public clear() {
     this.undoStack = [];
     this.redoStack = [];
   }
 
-  canUndo() {
+  public canUndo() {
     return this.undoStack.length > 1;
   }
 
-  canRedo() {
-    return this.redoStack.length;
+  public canRedo() {
+    return !!this.redoStack.length;
   }
 
-  undo() {
+  public undo() {
     if (!this.canUndo()) {
-      throw new Error('Nothing to undo');
+      throw new Error("Nothing to undo");
     }
-    const cur = this.undoStack.pop();
+    const cur = this.undoStack.pop()!;
     this.redoStack.push(cur);
     return this.undoStack[this.undoStack.length - 1];
   }
 
-  redo() {
+  public redo() {
     if (!this.canRedo()) {
-      throw new Error('Nothing to redo');
+      throw new Error("Nothing to redo");
     }
-    const x = this.redoStack.pop();
+    const x = this.redoStack.pop()!;
     this.undoStack.push(x);
     return x;
   }
 
-  save(x, ...meta) {
+  public save(x: string, ...meta: any[]) {
     // Ignore if we already have that saved.
     if (
       this.undoStack.length &&

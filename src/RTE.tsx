@@ -1,31 +1,68 @@
-import React from "react";
-import PropTypes from "prop-types";
-import styles from "./RTE.css";
+import bowser from "bowser";
 import cn from "classnames";
+import throttle from "lodash/throttle";
+import PropTypes from "prop-types";
+import React, { ClipboardEvent, KeyboardEvent, ReactElement } from "react";
 import ContentEditable from "react-contenteditable";
 import Toolbar from "./components/Toolbar";
+import createAPI from "./lib/api";
 import {
+  cloneNodeAndRange,
+  getSelectionRange,
   insertNewLine,
   insertText,
-  getSelectionRange,
-  replaceSelection,
-  cloneNodeAndRange,
-  replaceNodeChildren,
-  selectEndOfNode,
   isSelectionInside,
+  replaceNodeChildren,
+  replaceSelection,
+  selectEndOfNode,
   traverse,
 } from "./lib/dom";
-import createAPI from "./lib/api";
 import Undo from "./lib/undo";
-import bowser from "bowser";
-import throttle from "lodash/throttle";
+import styles from "./RTE.css";
 
-class RTE extends React.Component {
+export interface Feature {
+  onEnter?: (node: HTMLElement) => boolean;
+  onShortcut?: (e: KeyboardEvent) => boolean;
+  isActive?: () => boolean;
+  isDisabled?: () => boolean;
+  onSelectionChange?: () => void;
+  getFeatureInstance?: () => Feature;
+}
+
+interface PropTypes {
+  features?: Array<ReactElement<any>>;
+  inputId?: string;
+  onChange?: (data: { text: string; html: string }) => void;
+  disabled?: boolean;
+  className?: string;
+  classNameDisabled: string;
+  contentClassName: string;
+  contentClassNameDisabled: string;
+  toolbarClassName: string;
+  toolbarClassNameDisabled: string;
+  placeholderClassName: string;
+  placeholderClassNameDisabled: string;
+  placeholder?: string;
+  value?: string;
+}
+
+class RTE extends React.Component<PropTypes> {
+  public static defaultProps = {
+    features: [],
+    classNameDisabled: "",
+    contentClassName: "",
+    contentClassNameDisabled: "",
+    toolbarClassName: "",
+    toolbarClassNameDisabled: "",
+    placeholderClassName: "",
+    placeholderClassNameDisabled: "",
+  };
+
   /// Ref to react-contenteditable
-  ref = null;
+  private ref: any = null;
 
   // Our "plugins" api.
-  api = createAPI(
+  private api = createAPI(
     () => this.ref.htmlEl,
     () => this.handleChange(),
     () => this.undo.canUndo(),
@@ -36,36 +73,36 @@ class RTE extends React.Component {
   );
 
   // Instance of undo stack.
-  undo = new Undo();
+  private undo = new Undo();
 
   // Refs to the features.
-  featuresRef = {};
+  private featuresRef: Record<string, Feature> = {};
 
   // Export this for parent components.
-  focus = () => this.ref.htmlEl.focus();
+  public focus = () => this.ref.htmlEl.focus();
 
-  unmounted = false;
-  focused = false;
+  private unmounted = false;
+  private focused = false;
 
   // Should be called on every change to feed
   // our Undo stack. We save the innerHTML and if available
   // a copy of the contentEditable node and a copy of the range.
-  saveCheckpoint = throttle((html, node, range) => {
-    const args = [html];
+  private saveCheckpoint = throttle((html, node?, range?) => {
+    const meta = [];
     if (node && range) {
-      args.push(...cloneNodeAndRange(node, range));
+      meta.push(...cloneNodeAndRange(node, range));
     }
-    this.undo.save(...args);
+    this.undo.save(html, ...meta);
   }, 1000);
 
-  constructor(props) {
+  constructor(props: PropTypes) {
     super(props);
     this.saveCheckpoint(props.value);
   }
 
   // Returns a handler that fills our `featuresRef`.
-  createFeatureRefHandler(key) {
-    return ref => {
+  private createFeatureRefHandler(key: string | number) {
+    return (ref: any) => {
       if (ref) {
         this.featuresRef[key] = ref;
       } else {
@@ -75,18 +112,18 @@ class RTE extends React.Component {
   }
 
   // Ref to react-contenteditable.
-  handleRef = ref => (this.ref = ref);
+  private handleRef = (ref: any) => (this.ref = ref);
 
-  forEachFeature(callback) {
+  private forEachFeature(callback: (instance: Feature) => void) {
     Object.keys(this.featuresRef).map(k => {
       const instance = this.featuresRef[k].getFeatureInstance
-        ? this.featuresRef[k].getFeatureInstance()
+        ? this.featuresRef[k].getFeatureInstance!()
         : this.featuresRef[k];
       callback(instance);
     });
   }
 
-  componentWillReceiveProps(props) {
+  public componentWillReceiveProps(props: PropTypes) {
     // Clear undo stack if content was set to sth different.
     if (props.value !== this.ref.htmlEl.innerHTML) {
       this.undo.clear();
@@ -97,24 +134,27 @@ class RTE extends React.Component {
     }
   }
 
-  componentWillUnmount() {
+  public componentWillUnmount() {
     // Cancel pending stuff.
     this.saveCheckpoint.cancel();
     this.unmounted = true;
   }
 
-  handleChange = () => {
+  private handleChange = () => {
     // TODO: don't rely on this hack.
     // It removes all `style` attr that
     // remaining execCommand still add.
-    traverse(this.ref.htmlEl, n => {
+    traverse(this.ref.htmlEl, (n: HTMLElement) => {
+      // tslint:disable-next-line:no-unused-expression
       n.removeAttribute && n.removeAttribute("style");
     });
 
-    this.props.onChange({
-      text: this.ref.htmlEl.innerText,
-      html: this.ref.htmlEl.innerHTML,
-    });
+    if (this.props.onChange) {
+      this.props.onChange({
+        text: this.ref.htmlEl.innerText,
+        html: this.ref.htmlEl.innerHTML,
+      });
+    }
     this.ref.htmlEl.focus();
     this.saveCheckpoint(
       this.ref.htmlEl.innerHTML,
@@ -123,16 +163,17 @@ class RTE extends React.Component {
     );
   };
 
-  handleSelectionChange = () => {
+  private handleSelectionChange = () => {
     // Let features know selection has changeed, so they
     // can update.
     this.forEachFeature(b => {
+      // tslint:disable-next-line:no-unused-expression
       b.onSelectionChange && b.onSelectionChange();
     });
   };
 
   // Allow features to handle shortcuts.
-  handleShortcut = e => {
+  private handleShortcut = (e: KeyboardEvent) => {
     let handled = false;
     this.forEachFeature(b => {
       if (!handled) {
@@ -145,15 +186,15 @@ class RTE extends React.Component {
   // Called when Enter was pressed without shift.
   // Traverses from bottom to top and calling
   // feature handlers and stops when one has handled this event.
-  handleSpecialEnter = () => {
+  private handleSpecialEnter = () => {
     let handled = false;
     const sel = window.getSelection();
     const range = sel.getRangeAt(0);
-    let container = range.startContainer;
+    let container: Node | null = range.startContainer;
     while (!handled && container && container !== this.ref.htmlEl) {
       this.forEachFeature(b => {
         if (!handled) {
-          handled = !!(b.onEnter && b.onEnter(container));
+          handled = !!(b.onEnter && b.onEnter(container as HTMLElement));
         }
       });
       container = container.parentNode;
@@ -161,18 +202,18 @@ class RTE extends React.Component {
     return handled;
   };
 
-  handleCut = () => {
+  private handleCut = () => {
     // IE has issues not firing the onChange event.
     if (bowser.msie) {
       setTimeout(() => !this.unmounted && this.handleChange());
     }
   };
 
-  handleFocus = () => {
+  private handleFocus = () => {
     this.focused = true;
   };
 
-  handleBlur = () => {
+  private handleBlur = () => {
     this.focused = false;
     // Sometimes the onselect event doesn't fire on blur.
     this.handleSelectionChange();
@@ -180,16 +221,17 @@ class RTE extends React.Component {
 
   // We intercept pasting, so that we
   // force text/plain content.
-  handlePaste = e => {
+  private handlePaste = (e: ClipboardEvent) => {
     // Get text representation of clipboard
     // This works cross browser.
     const text = (
-      (e.originalEvent || e).clipboardData || window.clipboardData
+      ((e as any).originalEvent || e).clipboardData ||
+      (window as any).clipboardData
     ).getData("Text");
 
     // IE does this funny thing to change the selection after the paste
     // event, remember the range for now.
-    const range = getSelectionRange().cloneRange();
+    const range = getSelectionRange()!.cloneRange();
 
     // Run outside of event loop to fix
     // selection issues with IE.
@@ -208,7 +250,7 @@ class RTE extends React.Component {
     return false;
   };
 
-  handleKeyDown = e => {
+  private handleKeyDown = (e: KeyboardEvent) => {
     // IE has issues not firing the onChange event.
     if (bowser.msie) {
       setTimeout(() => !this.unmounted && this.handleChange());
@@ -246,9 +288,11 @@ class RTE extends React.Component {
       e.preventDefault();
       return false;
     }
+
+    return;
   };
 
-  restoreCheckpoint(html, node, range) {
+  private restoreCheckpoint(html: string, node: HTMLElement, range: Range) {
     if (node && range) {
       // We need to clone it, otherwise we'll mutate
       // that original one which can still be in the undo stack.
@@ -288,7 +332,7 @@ class RTE extends React.Component {
     this.handleChange();
   }
 
-  handleUndo() {
+  private handleUndo() {
     this.saveCheckpoint.flush();
     if (this.undo.canUndo()) {
       const [html, node, range] = this.undo.undo();
@@ -296,7 +340,7 @@ class RTE extends React.Component {
     }
   }
 
-  handleRedo() {
+  private handleRedo() {
     this.saveCheckpoint.flush();
     if (this.undo.canRedo()) {
       const [html, node, range] = this.undo.redo();
@@ -304,17 +348,20 @@ class RTE extends React.Component {
     }
   }
 
-  renderFeatures() {
-    return this.props.features.map(b => {
-      return React.cloneElement(b, {
-        disabled: this.props.disabled,
-        api: this.api,
-        ref: this.createFeatureRefHandler(b.key),
-      });
-    });
+  private renderFeatures() {
+    return (
+      this.props.features &&
+      this.props.features.map(b => {
+        return React.cloneElement(b, {
+          disabled: this.props.disabled,
+          api: this.api,
+          ref: this.createFeatureRefHandler(b.key!),
+        });
+      })
+    );
   }
 
-  getClassNames() {
+  private getClassNames() {
     const { disabled } = this.props;
     return {
       toolbar: cn(this.props.toolbarClassName, {
@@ -334,10 +381,25 @@ class RTE extends React.Component {
     };
   }
 
-  render() {
+  public render() {
     const { value, placeholder, inputId, disabled } = this.props;
 
     const classNames = this.getClassNames();
+
+    const contentEditableProps: any = {
+      id: inputId,
+      onKeyDown: this.handleKeyDown,
+      onPaste: this.handlePaste,
+      onCut: this.handleCut,
+      onFocus: this.handleFocus,
+      onBlur: this.handleBlur,
+      onSelect: this.handleSelectionChange,
+      className: classNames.content,
+      ref: this.handleRef,
+      html: value || "",
+      disabled,
+      onChange: this.handleChange,
+    };
 
     return (
       <div className={classNames.root}>
@@ -345,48 +407,10 @@ class RTE extends React.Component {
           {this.renderFeatures()}
         </Toolbar>
         {!value && <div className={classNames.placeholder}>{placeholder}</div>}
-        <ContentEditable
-          id={inputId}
-          onMouseUp={this.handleMouseUp}
-          onKeyDown={this.handleKeyDown}
-          onKeyPress={this.handleKeyPress}
-          onKeyUp={this.handleKeyUp}
-          onPaste={this.handlePaste}
-          onCut={this.handleCut}
-          onFocus={this.handleFocus}
-          onBlur={this.handleBlur}
-          onSelect={this.handleSelectionChange}
-          className={classNames.content}
-          ref={this.handleRef}
-          html={value}
-          disabled={disabled}
-          onChange={this.handleChange}
-        />
+        <ContentEditable {...contentEditableProps} />
       </div>
     );
   }
 }
-
-RTE.defaultProps = {
-  features: [],
-};
-
-RTE.propTypes = {
-  features: PropTypes.array,
-  inputId: PropTypes.string,
-  input: PropTypes.object,
-  onChange: PropTypes.func,
-  disabled: PropTypes.bool,
-  className: PropTypes.string,
-  classNameDisabled: PropTypes.string,
-  contentClassName: PropTypes.string,
-  contentClassNameDisabled: PropTypes.string,
-  toolbarClassName: PropTypes.string,
-  toolbarClassNameDisabled: PropTypes.string,
-  placeholderClassName: PropTypes.string,
-  placeholderClassNameDisabled: PropTypes.string,
-  placeholder: PropTypes.string,
-  value: PropTypes.string,
-};
 
 export default RTE;

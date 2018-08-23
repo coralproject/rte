@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "jsx": "react",
+    "allowJs": true,
+    "noEmit": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "noUnusedLocals": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noErrorTruncation": true,
+    "lib": ["dom", "es6", "es7"]
+  },
+  "include": ["./src/**/*.ts", "./src/**/*.d.ts", "./src/**/*.js"],
+  "exclude": ["node_modules"]
+}

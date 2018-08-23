@@ -42,7 +42,7 @@ export function traverseUp(node, callback, limitTo) {
  */
 export function findAncestor(node, tagOrCallback, limitTo) {
   const callback =
-    typeof tagOrCallback === 'function'
+    typeof tagOrCallback === "function"
       ? tagOrCallback
       : n => n.tagName === tagOrCallback;
   return (
@@ -63,7 +63,7 @@ export function findAncestor(node, tagOrCallback, limitTo) {
  */
 export function findChild(node, tagOrCallback) {
   const callback =
-    typeof tagOrCallback === 'function'
+    typeof tagOrCallback === "function"
       ? tagOrCallback
       : n => n.tagName === tagOrCallback;
   return (
@@ -82,7 +82,7 @@ export function findChild(node, tagOrCallback) {
  */
 export function findIntersecting(tagOrCallback, limitTo) {
   const callback =
-    typeof tagOrCallback === 'function'
+    typeof tagOrCallback === "function"
       ? tagOrCallback
       : n => n.tagName === tagOrCallback;
 
@@ -119,7 +119,7 @@ export function findIntersecting(tagOrCallback, limitTo) {
  */
 export function nodeContains(node, lookFor) {
   const callback =
-    typeof lookFor === 'function' ? lookFor : n => n.isSameNode(lookFor);
+    typeof lookFor === "function" ? lookFor : n => n.isSameNode(lookFor);
   if (callback(node)) {
     return true;
   }
@@ -130,13 +130,13 @@ export function nodeContains(node, lookFor) {
  * Returns true if node is not `inline` nor `inline-block`.
  */
 export function isBlockElement(node) {
-  if (node.nodeName === '#text') {
+  if (node.nodeName === "#text") {
     return false;
   }
   return !window
     .getComputedStyle(node)
-    .getPropertyValue('display')
-    .startsWith('inline');
+    .getPropertyValue("display")
+    .startsWith("inline");
 }
 
 /**
@@ -179,7 +179,7 @@ export function insertText(text) {
   const offset = range.startOffset;
   const container = range.startContainer;
 
-  if (container.nodeName === '#text') {
+  if (container.nodeName === "#text") {
     container.textContent =
       container.textContent.slice(0, offset) +
       text +
@@ -209,7 +209,7 @@ export function insertNodes(...nodes) {
   }
   const offset = range.startOffset;
   const container = range.startContainer;
-  if (container.nodeName === '#text') {
+  if (container.nodeName === "#text") {
     const startSlice = container.textContent.slice(0, offset);
     const endSlice = container.textContent.slice(offset);
     if (startSlice) {
@@ -258,7 +258,7 @@ export function addBogusBR(node) {
     return;
   }
   if (!node.lastChild || !isBogusBR(node.lastChild)) {
-    node.appendChild(document.createElement('br'));
+    node.appendChild(document.createElement("br"));
   }
 }
 
@@ -293,18 +293,18 @@ export function isSelectionInside(...nodes) {
  */
 export function insertNewLine(changeSelection) {
   // Insert <br> node.
-  const el = document.createElement('br');
+  const el = document.createElement("br");
   insertNodes(el);
 
   // If we are adding to the end of the node, we also need
   // to add a bogus br.
   if (!el.nextSibling) {
-    el.parentNode.appendChild(document.createElement('br'));
+    el.parentNode.appendChild(document.createElement("br"));
   }
 
   // Adding directly before a block element needs also a bogus br.
   if (el.nextSibling && isBlockElement(el.nextSibling)) {
-    el.parentNode.insertBefore(document.createElement('br'), el.nextSibling);
+    el.parentNode.insertBefore(document.createElement("br"), el.nextSibling);
   }
 
   // Calculate next selection.
@@ -328,7 +328,7 @@ export function insertNewLine(changeSelection) {
  * Inserts a new line after given node.
  */
 export function insertNewLineAfterNode(node, changeSelection) {
-  const el = document.createElement('br');
+  const el = document.createElement("br");
   if (node.nextSibling) {
     node.parentNode.insertBefore(el, node.nextSibling);
   } else {
@@ -349,7 +349,7 @@ export function insertNewLineAfterNode(node, changeSelection) {
  * node. Usually to resolve the start or end of a range.
  */
 export function getRangeNode(container, offset) {
-  if (container.nodeName === '#text') {
+  if (container.nodeName === "#text") {
     return container;
   }
   return container.childNodes[offset];
@@ -363,7 +363,7 @@ export function getLeftOfNode(node) {
   let leftMost = node;
   while (
     leftMost.previousSibling &&
-    leftMost.previousSibling.tagName !== 'BR' &&
+    leftMost.previousSibling.tagName !== "BR" &&
     !isBlockElement(leftMost.previousSibling)
   ) {
     result.splice(0, 0, leftMost.previousSibling);
@@ -375,7 +375,7 @@ export function getLeftOfNode(node) {
 export function isBogusBR(node) {
   return (
     (!node.previousSibling || !isBlockElement(node.previousSibling)) &&
-    node.tagName === 'BR' &&
+    node.tagName === "BR" &&
     (!node.nextSibling || isBlockElement(node.previousSibling))
   );
 }
@@ -384,7 +384,7 @@ export function isBogusBR(node) {
  * Returns an array of all nodes after `node` in a _line_.
  */
 export function getRightOfNode(node) {
-  if (node.tagName === 'BR') {
+  if (node.tagName === "BR") {
     return [];
   }
 
@@ -392,7 +392,7 @@ export function getRightOfNode(node) {
   let cur = node;
   while (
     cur.nextSibling &&
-    cur.nextSibling.tagName !== 'BR' &&
+    cur.nextSibling.tagName !== "BR" &&
     !isBlockElement(cur.nextSibling)
   ) {
     cur = cur.nextSibling;
@@ -400,7 +400,7 @@ export function getRightOfNode(node) {
   }
   if (
     cur.nextSibling &&
-    cur.nextSibling.tagName === 'BR' &&
+    cur.nextSibling.tagName === "BR" &&
     !isBogusBR(cur.nextSibling)
   ) {
     result.push(cur.nextSibling);
@@ -419,7 +419,7 @@ export function getWholeLine(node) {
   const child = isBlockElement(node.parentNode)
     ? node
     : lastParentBeforeBlock(node);
-  if (child.tagName === 'BR') {
+  if (child.tagName === "BR") {
     return [...getLeftOfNode(child), child];
   }
   return [...getLeftOfNode(child), child, ...getRightOfNode(child)];
@@ -513,7 +513,7 @@ export function outdentBlock(node, changeSelection) {
   } = getSelectionRange();
 
   // Remove bogus br
-  if (node.lastChild && node.lastChild.tagName === 'BR') {
+  if (node.lastChild && node.lastChild.tagName === "BR") {
     node.removeChild(node.lastChild);
   }
 
@@ -526,12 +526,12 @@ export function outdentBlock(node, changeSelection) {
   const needLineBefore =
     node.previousSibling &&
     !isBlockElement(node.previousSibling) &&
-    node.previousSibling.tageName !== 'BR';
+    node.previousSibling.tageName !== "BR";
 
   const parentNode = node.parentNode;
 
   if (needLineBefore) {
-    parentNode.insertBefore(document.createElement('BR'), node);
+    parentNode.insertBefore(document.createElement("BR"), node);
   }
 
   const previousOffset = indexOfChildNode(parentNode, node);
@@ -541,7 +541,7 @@ export function outdentBlock(node, changeSelection) {
   }
 
   if (needLineAfter) {
-    parentNode.insertBefore(document.createElement('BR'), node);
+    parentNode.insertBefore(document.createElement("BR"), node);
   }
 
   parentNode.removeChild(node);
@@ -587,7 +587,7 @@ export function indentNodes(nodes, tagName, changeSelection) {
 
   const firstNode = nodes[0];
   // Remove previous br as it is not needed
-  if (firstNode.previousSibling && firstNode.previousSibling.tagName === 'BR') {
+  if (firstNode.previousSibling && firstNode.previousSibling.tagName === "BR") {
     parentNode.removeChild(firstNode.previousSibling);
   }
 
@@ -629,7 +629,7 @@ export function cloneNodeAndRange(node, range) {
     rangeCloned.startContainer === range.startContainer ||
     rangeCloned.endContainer === range.endContainer
   ) {
-    throw new Error('Range not inside node');
+    throw new Error("Range not inside node");
   }
   return [nodeCloned, rangeCloned];
 }
@@ -658,10 +658,10 @@ export function selectEndOfNode(node) {
     if (s) {
       return true;
     }
-    if (child.tagName === 'BR') {
+    if (child.tagName === "BR") {
       if (
         child.previousSibling &&
-        child.previousSibling.childName === '#text'
+        child.previousSibling.childName === "#text"
       ) {
         child = child.previousSibling;
       } else {
@@ -673,7 +673,7 @@ export function selectEndOfNode(node) {
         return true;
       }
     }
-    if (child.nodeName === '#text') {
+    if (child.nodeName === "#text") {
       const range = document.createRange();
       range.setStart(child, child.textContent.length);
       range.setEnd(child, child.textContent.length);
