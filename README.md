@@ -11,6 +11,8 @@ npm install @coralproject/coral-rte --save-dev
 ## Demo
 
 ```js
+import { CoralRTE, Bold, Italic, Blockquote } from "@coralproject/rte";
+
 <CoralRTE
   features={[
     <Bold key="bold" />,
