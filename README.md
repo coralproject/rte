@@ -8,7 +8,7 @@ CoralRTE is a lightweight and extensible Rich Text Editor based on React.
 npm install @coralproject/rte --save-dev
 ```
 
-## Demo
+## Usage
 
 ```js
 import { CoralRTE, Bold, Italic, Blockquote } from "@coralproject/rte";
