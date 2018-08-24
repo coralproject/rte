@@ -44,7 +44,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: ~/coralproject/talk
+          at: ~/coralproject/rte
       - run:
           name: Perform linting
           command: npm run lint
