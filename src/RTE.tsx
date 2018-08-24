@@ -351,11 +351,12 @@ class RTE extends React.Component<PropTypes> {
   private renderFeatures() {
     return (
       this.props.features &&
-      this.props.features.map(b => {
+      this.props.features.map((b, i) => {
         return React.cloneElement(b, {
           disabled: this.props.disabled,
           api: this.api,
-          ref: this.createFeatureRefHandler(b.key!),
+          key: b.key || i,
+          ref: this.createFeatureRefHandler(b.key || i),
         });
       })
     );
