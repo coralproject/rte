@@ -22,6 +22,7 @@ class Button extends React.Component<ButtonPropTypes> {
     } = this.props;
     return (
       <button
+        type="button"
         className={cn(className, styles.button, {
           [cn(styles.active, activeClassName)]: active,
         })}
