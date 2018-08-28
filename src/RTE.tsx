@@ -35,13 +35,13 @@ interface PropTypes {
   onChange?: (data: { text: string; html: string }) => void;
   disabled?: boolean;
   className?: string;
-  classNameDisabled: string;
-  contentClassName: string;
-  contentClassNameDisabled: string;
-  toolbarClassName: string;
-  toolbarClassNameDisabled: string;
-  placeholderClassName: string;
-  placeholderClassNameDisabled: string;
+  classNameDisabled?: string;
+  contentClassName?: string;
+  contentClassNameDisabled?: string;
+  toolbarClassName?: string;
+  toolbarClassNameDisabled?: string;
+  placeholderClassName?: string;
+  placeholderClassNameDisabled?: string;
   placeholder?: string;
   value?: string;
 }
@@ -366,18 +366,18 @@ class RTE extends React.Component<PropTypes> {
     const { disabled } = this.props;
     return {
       toolbar: cn(this.props.toolbarClassName, {
-        [this.props.toolbarClassNameDisabled]: disabled,
+        [this.props.toolbarClassNameDisabled!]: disabled,
         [styles.toolbarDisabled]: disabled,
       }),
       content: cn(styles.contentEditable, this.props.contentClassName, {
-        [this.props.contentClassNameDisabled]: disabled,
+        [this.props.contentClassNameDisabled!]: disabled,
         [styles.contentEditableDisabled]: disabled,
       }),
       root: cn(this.props.className, {
-        [this.props.classNameDisabled]: disabled,
+        [this.props.classNameDisabled!]: disabled,
       }),
       placeholder: cn(styles.placeholder, this.props.placeholderClassName, {
-        [this.props.placeholderClassNameDisabled]: disabled,
+        [this.props.placeholderClassNameDisabled!]: disabled,
       }),
     };
   }
