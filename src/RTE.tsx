@@ -402,12 +402,21 @@ class RTE extends React.Component<PropTypes> {
       onChange: this.handleChange,
     };
 
+    if (placeholder) {
+      contentEditableProps["aria-placeholder"] = placeholder;
+    }
+
     return (
       <div className={classNames.root}>
         <Toolbar className={classNames.toolbar}>
           {this.renderFeatures()}
         </Toolbar>
-        {!value && <div className={classNames.placeholder}>{placeholder}</div>}
+        {!value &&
+          placeholder && (
+            <div aria-hidden="true" className={classNames.placeholder}>
+              {placeholder}
+            </div>
+          )}
         <ContentEditable {...contentEditableProps} />
       </div>
     );
