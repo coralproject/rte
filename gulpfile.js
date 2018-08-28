@@ -24,14 +24,17 @@ function build(dest, module) {
       module,
     });
 
-    let src = gulp.src(files.ts);
-    const tsResult = src
+    const tsResult = gulp
+      .src(files.ts)
       .pipe(sourcemaps.init())
       .pipe(tsProject())
       .once("error", onBuildError);
+
+    const cssResult = gulp.src("./src/**/*.css", { base: "./src/" });
     return merge([
       tsResult.dts.pipe(gulp.dest(dest)),
       tsResult.js.pipe(sourcemaps.write(".")).pipe(gulp.dest(dest)),
+      cssResult.pipe(gulp.dest(dest)),
     ]);
   };
 }
