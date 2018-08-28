@@ -4,6 +4,7 @@
   "description": "Coral Rich Text Editor",
   "author": "The Coral Project Team <coral@mozillafoundation.org>",
   "license": "Apache-2.0",
+  "homepage": "https://github.com/coralproject/rte",
   "files": [
     "lib",
     "cjs"
