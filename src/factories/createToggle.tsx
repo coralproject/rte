@@ -5,11 +5,14 @@ import { API } from "../lib/api";
 import { Feature } from "../RTE";
 
 export interface TogglePropTypes {
-  api: API;
   className?: string;
   title?: string;
   children?: React.ReactNode;
   disabled?: boolean;
+}
+
+export interface InjectedProps {
+  api: API;
 }
 
 interface State {
@@ -36,8 +39,8 @@ const createToggle = (
     isActive = () => false,
     isDisabled = () => false,
   }: CreateToggleOptions = {}
-) => {
-  class Toggle extends React.Component<TogglePropTypes, State>
+): ComponentType<TogglePropTypes> => {
+  class Toggle extends React.Component<TogglePropTypes & InjectedProps, State>
     implements Feature {
     public state = {
       active: false,
@@ -101,8 +104,7 @@ const createToggle = (
       );
     }
   }
-
-  return Toggle as ComponentType<TogglePropTypes>;
+  return Toggle as any;
 };
 
 export default createToggle;
