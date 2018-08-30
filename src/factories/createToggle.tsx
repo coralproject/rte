@@ -1,4 +1,4 @@
-import React, { ComponentClass, KeyboardEvent } from "react";
+import React, { ComponentType, KeyboardEvent } from "react";
 
 import Button from "../components/Button";
 import { API } from "../lib/api";
@@ -102,7 +102,7 @@ const createToggle = (
     }
   }
 
-  return Toggle as ComponentClass<TogglePropTypes>;
+  return Toggle as ComponentType<TogglePropTypes>;
 };
 
 export default createToggle;
