@@ -212,10 +212,9 @@ export function insertText(text: string) {
   if (isTextNode(container)) {
     container.textContent =
       container.textContent!.slice(0, offset) +
-      container +
+      text +
       container.textContent!.slice(offset);
     const nextOffset = offset + text.length;
-
     newRange.setStart(container, nextOffset);
     newRange.setEnd(container, nextOffset);
   } else {
