@@ -63,7 +63,7 @@ class RTE extends React.Component<PropTypes> {
 
   // Our "plugins" api.
   private api = createAPI(
-    () => this.ref.htmlEl,
+    () => this.ref && this.ref.htmlEl,
     () => this.handleChange(),
     () => this.undo.canUndo(),
     () => this.undo.canRedo(),
