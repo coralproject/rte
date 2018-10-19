@@ -44,6 +44,7 @@ interface PropTypes {
   placeholderClassNameDisabled?: string;
   placeholder?: string;
   value?: string;
+  toolbarPosition?: "top" | "bottom";
 }
 
 class RTE extends React.Component<PropTypes> {
@@ -56,6 +57,7 @@ class RTE extends React.Component<PropTypes> {
     toolbarClassNameDisabled: "",
     placeholderClassName: "",
     placeholderClassNameDisabled: "",
+    toolbarPosition: "top",
   };
 
   /// Ref to react-contenteditable
@@ -363,11 +365,13 @@ class RTE extends React.Component<PropTypes> {
   }
 
   private getClassNames() {
-    const { disabled } = this.props;
+    const { disabled, toolbarPosition } = this.props;
     return {
       toolbar: cn(this.props.toolbarClassName, {
         [this.props.toolbarClassNameDisabled!]: disabled,
         [styles.toolbarDisabled]: disabled,
+        [styles.toolbarTop]: toolbarPosition === "top",
+        [styles.toolbarBottom]: toolbarPosition === "bottom",
       }),
       content: cn(styles.contentEditable, this.props.contentClassName, {
         [this.props.contentClassNameDisabled!]: disabled,
@@ -383,7 +387,13 @@ class RTE extends React.Component<PropTypes> {
   }
 
   public render() {
-    const { value, placeholder, inputId, disabled } = this.props;
+    const {
+      value,
+      placeholder,
+      inputId,
+      toolbarPosition,
+      disabled,
+    } = this.props;
 
     const classNames = this.getClassNames();
 
@@ -408,9 +418,11 @@ class RTE extends React.Component<PropTypes> {
 
     return (
       <div className={classNames.root}>
-        <Toolbar className={classNames.toolbar}>
-          {this.renderFeatures()}
-        </Toolbar>
+        {toolbarPosition === "top" && (
+          <Toolbar className={classNames.toolbar}>
+            {this.renderFeatures()}
+          </Toolbar>
+        )}
         {!value &&
           placeholder && (
             <div aria-hidden="true" className={classNames.placeholder}>
@@ -418,6 +430,11 @@ class RTE extends React.Component<PropTypes> {
             </div>
           )}
         <ContentEditable {...contentEditableProps} />
+        {toolbarPosition === "bottom" && (
+          <Toolbar className={classNames.toolbar}>
+            {this.renderFeatures()}
+          </Toolbar>
+        )}
       </div>
     );
   }

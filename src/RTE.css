@@ -8,7 +8,6 @@
   width: 100%;
   padding: 10px;
   font-style: unset;
-  margin-bottom: 3px;
 }
 
 .placeholder {
@@ -22,6 +21,14 @@
 .toolbarDisabled {
   background: #f8f8f8;
   cursor: default;
+}
+
+.toolbarTop {
+  margin-bottom: -1px;
+}
+
+.toolbarBottom {
+  margin-top: -1px;
 }
 
 .contentEditableDisabled {
