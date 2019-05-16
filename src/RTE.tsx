@@ -38,6 +38,8 @@ interface PropTypes {
   classNameDisabled?: string;
   contentClassName?: string;
   contentClassNameDisabled?: string;
+  contentContainerClassName?: string;
+  contentContainerClassNameDisabled?: string;
   toolbarClassName?: string;
   toolbarClassNameDisabled?: string;
   placeholderClassName?: string;
@@ -53,6 +55,8 @@ class RTE extends React.Component<PropTypes> {
     classNameDisabled: "",
     contentClassName: "",
     contentClassNameDisabled: "",
+    contentContainerClassName: "",
+    contentContainerClassNameDisabled: "",
     toolbarClassName: "",
     toolbarClassNameDisabled: "",
     placeholderClassName: "",
@@ -191,6 +195,9 @@ class RTE extends React.Component<PropTypes> {
   private handleSpecialEnter = () => {
     let handled = false;
     const sel = window.getSelection();
+    if (!sel) {
+      return false;
+    }
     const range = sel.getRangeAt(0);
     let container: Node | null = range.startContainer;
     while (!handled && container && container !== this.ref.htmlEl) {
@@ -373,11 +380,19 @@ class RTE extends React.Component<PropTypes> {
         [styles.toolbarTop]: toolbarPosition === "top",
         [styles.toolbarBottom]: toolbarPosition === "bottom",
       }),
+      contentContainer: cn(
+        styles.contentEditableContainer,
+        this.props.contentContainerClassName,
+        {
+          [this.props.contentContainerClassNameDisabled!]: disabled,
+          [styles.contentEditableContainerDisabled]: disabled,
+        }
+      ),
       content: cn(styles.contentEditable, this.props.contentClassName, {
         [this.props.contentClassNameDisabled!]: disabled,
         [styles.contentEditableDisabled]: disabled,
       }),
-      root: cn(this.props.className, {
+      root: cn(styles.root, this.props.className, {
         [this.props.classNameDisabled!]: disabled,
       }),
       placeholder: cn(styles.placeholder, this.props.placeholderClassName, {
@@ -423,13 +438,15 @@ class RTE extends React.Component<PropTypes> {
             {this.renderFeatures()}
           </Toolbar>
         )}
-        {!value &&
-          placeholder && (
-            <div aria-hidden="true" className={classNames.placeholder}>
-              {placeholder}
-            </div>
-          )}
-        <ContentEditable {...contentEditableProps} />
+        <div className={styles.contentEditableContainer}>
+          <ContentEditable {...contentEditableProps} />
+          {!value &&
+            placeholder && (
+              <div aria-hidden="true" className={classNames.placeholder}>
+                {placeholder}
+              </div>
+            )}
+        </div>
         {toolbarPosition === "bottom" && (
           <Toolbar className={classNames.toolbar}>
             {this.renderFeatures()}

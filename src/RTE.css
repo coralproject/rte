@@ -1,5 +1,16 @@
-.contentEditable {
+.contentEditableContainer {
+  position: relative;
   background: #fff;
+}
+
+.contentEditableContainerDisabled {
+  background: #fafafa;
+}
+
+.contentEditable {
+  position: relative;
+  z-index: 1;
+  background: transparent;
   border: solid 1px #bbb;
   min-height: 120px;
   box-sizing: border-box;
@@ -12,7 +23,9 @@
 
 .placeholder {
   position: absolute;
-  margin: 12px 0 0 12px;
+  top: 0;
+  z-index: 0;
+  margin: 11px 0 0 11px;
   color: #bbb;
   user-select: none;
   pointer-events: none;
@@ -32,7 +45,6 @@
 }
 
 .contentEditableDisabled {
-  background: #fafafa;
   color: #888;
   cursor: default;
 }
