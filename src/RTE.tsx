@@ -98,7 +98,7 @@ class RTE extends React.Component<PropTypes> {
     if (node && range) {
       meta.push(...cloneNodeAndRange(node, range));
     }
-    this.undo.save(html, ...meta);
+    this.undo.save(html || "", ...meta);
   }, 1000);
 
   constructor(props: PropTypes) {
