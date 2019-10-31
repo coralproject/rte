@@ -2,7 +2,13 @@ import bowser from "bowser";
 import cn from "classnames";
 import throttle from "lodash/throttle";
 import PropTypes from "prop-types";
-import React, { ClipboardEvent, KeyboardEvent, ReactElement } from "react";
+import React, {
+  ClipboardEvent,
+  EventHandler,
+  FocusEvent,
+  KeyboardEvent,
+  ReactElement,
+} from "react";
 import ContentEditable from "react-contenteditable";
 import Toolbar from "./components/Toolbar";
 import createAPI from "./lib/api";
@@ -47,6 +53,8 @@ interface PropTypes {
   placeholder?: string;
   value?: string;
   toolbarPosition?: "top" | "bottom";
+  onFocus?: EventHandler<FocusEvent>;
+  onBlur?: EventHandler<FocusEvent>;
 }
 
 class RTE extends React.Component<PropTypes> {
@@ -65,17 +73,19 @@ class RTE extends React.Component<PropTypes> {
   };
 
   /// Ref to react-contenteditable
-  private ref: any = null;
+  private contentEditableRef: any = null;
+  /// Ref to root container.
+  private rootRef: HTMLDivElement | null = null;
 
   // Our "plugins" api.
   private api = createAPI(
-    () => this.ref && this.ref.htmlEl,
+    () => this.contentEditableRef && this.contentEditableRef.htmlEl,
     () => this.handleChange(),
     () => this.undo.canUndo(),
     () => this.undo.canRedo(),
     () => this.handleUndo(),
     () => this.handleRedo(),
-    () => this.focused
+    () => this.contentEditableFocus
   );
 
   // Instance of undo stack.
@@ -85,10 +95,15 @@ class RTE extends React.Component<PropTypes> {
   private featuresRef: Record<string, Feature> = {};
 
   // Export this for parent components.
-  public focus = () => this.ref.htmlEl.focus();
+  public focus = () => this.contentEditableRef.htmlEl.focus();
 
   private unmounted = false;
-  private focused = false;
+
+  /** Does the contenteditable has a focus? */
+  private contentEditableFocus = false;
+
+  /** Is focus somewhere inside the root container */
+  private focusInsideRoot = false;
 
   // Should be called on every change to feed
   // our Undo stack. We save the innerHTML and if available
@@ -118,7 +133,11 @@ class RTE extends React.Component<PropTypes> {
   }
 
   // Ref to react-contenteditable.
-  private handleRef = (ref: any) => (this.ref = ref);
+  private handleContentEditableRef = (ref: any) =>
+    (this.contentEditableRef = ref);
+
+  // Ref to root container.
+  private handleRootRef = (ref: any) => (this.rootRef = ref);
 
   private forEachFeature(callback: (instance: Feature) => void) {
     Object.keys(this.featuresRef).map(k => {
@@ -131,11 +150,14 @@ class RTE extends React.Component<PropTypes> {
 
   public componentWillReceiveProps(props: PropTypes) {
     // Clear undo stack if content was set to sth different.
-    if (props.value !== this.ref.htmlEl.innerHTML) {
+    if (props.value !== this.contentEditableRef.htmlEl.innerHTML) {
       this.undo.clear();
       this.saveCheckpoint(props.value);
-      if (isSelectionInside(this.ref.htmlEl)) {
-        setTimeout(() => !this.unmounted && selectEndOfNode(this.ref.htmlEl));
+      if (isSelectionInside(this.contentEditableRef.htmlEl)) {
+        setTimeout(
+          () =>
+            !this.unmounted && selectEndOfNode(this.contentEditableRef.htmlEl)
+        );
       }
     }
   }
@@ -150,21 +172,21 @@ class RTE extends React.Component<PropTypes> {
     // TODO: don't rely on this hack.
     // It removes all `style` attr that
     // remaining execCommand still add.
-    traverse(this.ref.htmlEl, (n: Node) => {
+    traverse(this.contentEditableRef.htmlEl, (n: Node) => {
       // tslint:disable-next-line:no-unused-expression
       (n as Element).removeAttribute && (n as Element).removeAttribute("style");
     });
 
     if (this.props.onChange) {
       this.props.onChange({
-        text: this.ref.htmlEl.innerText,
-        html: this.ref.htmlEl.innerHTML,
+        text: this.contentEditableRef.htmlEl.innerText,
+        html: this.contentEditableRef.htmlEl.innerHTML,
       });
     }
-    this.ref.htmlEl.focus();
+    this.contentEditableRef.htmlEl.focus();
     this.saveCheckpoint(
-      this.ref.htmlEl.innerHTML,
-      this.ref.htmlEl,
+      this.contentEditableRef.htmlEl.innerHTML,
+      this.contentEditableRef.htmlEl,
       getSelectionRange()
     );
   };
@@ -200,7 +222,11 @@ class RTE extends React.Component<PropTypes> {
     }
     const range = sel.getRangeAt(0);
     let container: Node | null = range.startContainer;
-    while (!handled && container && container !== this.ref.htmlEl) {
+    while (
+      !handled &&
+      container &&
+      container !== this.contentEditableRef.htmlEl
+    ) {
       this.forEachFeature(b => {
         if (!handled) {
           handled = !!(b.onEnter && b.onEnter(container as HTMLElement));
@@ -218,14 +244,41 @@ class RTE extends React.Component<PropTypes> {
     }
   };
 
-  private handleFocus = () => {
-    this.focused = true;
+  private handleContentEditableFocus = () => {
+    this.contentEditableFocus = true;
   };
 
-  private handleBlur = () => {
-    this.focused = false;
+  private handleContentEditableBlur = () => {
+    this.contentEditableFocus = false;
     // Sometimes the onselect event doesn't fire on blur.
     this.handleSelectionChange();
+  };
+
+  private handleRootFocus = (e: FocusEvent) => {
+    if (this.focusInsideRoot) {
+      // Focus already inside, suppress event.
+      return;
+    }
+    this.focusInsideRoot = true;
+    // Call event handler if available.
+    if (this.props.onFocus) {
+      this.props.onFocus(e);
+    }
+  };
+
+  private handleRootBlur = (e: FocusEvent) => {
+    if (!this.rootRef || !this.focusInsideRoot) {
+      return;
+    }
+    if (this.rootRef.contains(e.nativeEvent.relatedTarget as Element)) {
+      // Focus didn't leave the RTE, suppress event.
+      return;
+    }
+    this.focusInsideRoot = false;
+    // Call event handler if available.
+    if (this.props.onBlur) {
+      this.props.onBlur(e);
+    }
   };
 
   // We intercept pasting, so that we
@@ -315,17 +368,17 @@ class RTE extends React.Component<PropTypes> {
       // Rewrite startContainer if it was pointing to `nodeCloned`.
       const startContainer =
         rangeCloned.startContainer === nodeCloned
-          ? this.ref.htmlEl
+          ? this.contentEditableRef.htmlEl
           : rangeCloned.startContainer;
 
       // Rewrite endContainer if it was pointing to `nodeCloned`.
       const endContainer =
         rangeCloned.endContainer === nodeCloned
-          ? this.ref.htmlEl
+          ? this.contentEditableRef.htmlEl
           : rangeCloned.endContainer;
 
       // Replace children with the ones from nodeCloned.
-      replaceNodeChildren(this.ref.htmlEl, nodeCloned);
+      replaceNodeChildren(this.contentEditableRef.htmlEl, nodeCloned);
 
       // Now setup the selection range.
       const finalRange = document.createRange();
@@ -335,8 +388,8 @@ class RTE extends React.Component<PropTypes> {
       // SELECT!
       replaceSelection(finalRange);
     } else {
-      this.ref.htmlEl.innerHTML = html;
-      selectEndOfNode(this.ref.htmlEl);
+      this.contentEditableRef.htmlEl.innerHTML = html;
+      selectEndOfNode(this.contentEditableRef.htmlEl);
     }
     this.handleChange();
   }
@@ -417,11 +470,11 @@ class RTE extends React.Component<PropTypes> {
       onKeyDown: this.handleKeyDown,
       onPaste: this.handlePaste,
       onCut: this.handleCut,
-      onFocus: this.handleFocus,
-      onBlur: this.handleBlur,
+      onFocus: this.handleContentEditableFocus,
+      onBlur: this.handleContentEditableBlur,
       onSelect: this.handleSelectionChange,
       className: classNames.content,
-      ref: this.handleRef,
+      ref: this.handleContentEditableRef,
       html: value || "",
       disabled,
       onChange: this.handleChange,
@@ -432,7 +485,12 @@ class RTE extends React.Component<PropTypes> {
     }
 
     return (
-      <div className={classNames.root}>
+      <div
+        className={classNames.root}
+        onFocus={this.handleRootFocus}
+        onBlur={this.handleRootBlur}
+        ref={this.handleRootRef}
+      >
         {toolbarPosition === "top" && (
           <Toolbar className={classNames.toolbar}>
             {this.renderFeatures()}
