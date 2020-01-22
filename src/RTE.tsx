@@ -498,12 +498,11 @@ class RTE extends React.Component<PropTypes> {
         )}
         <div className={styles.contentEditableContainer}>
           <ContentEditable {...contentEditableProps} />
-          {!value &&
-            placeholder && (
-              <div aria-hidden="true" className={classNames.placeholder}>
-                {placeholder}
-              </div>
-            )}
+          {!value && placeholder && (
+            <div aria-hidden="true" className={classNames.placeholder}>
+              {placeholder}
+            </div>
+          )}
         </div>
         {toolbarPosition === "bottom" && (
           <Toolbar className={classNames.toolbar}>

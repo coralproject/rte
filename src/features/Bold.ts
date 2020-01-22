@@ -1,4 +1,5 @@
 import { KeyboardEvent } from "react";
+import bowser from "bowser";
 
 import createToggle from "../factories/createToggle";
 import { API } from "../lib/api";
@@ -6,8 +7,12 @@ import { findAncestor, findIntersecting } from "../lib/dom";
 
 const boldTags = ["B", "STRONG"];
 
-function execCommand() {
-  return document.execCommand("bold");
+function execCommand(this: API) {
+  const result = document.execCommand("bold");
+  if (bowser.msie) {
+    this.broadcastChange();
+  }
+  return result;
 }
 
 function isActive(this: API) {
