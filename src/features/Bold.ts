@@ -22,7 +22,6 @@ function isDisabled(this: API) {
   if (!this.focused) {
     return false;
   }
-
   // Disable whenever the bold styling came from a different
   // tag than those we control.
   return !!findIntersecting(
@@ -53,7 +52,7 @@ function onShortcut(this: API, e: KeyboardEvent) {
 const Bold = createToggle(execCommand, { isActive, isDisabled, onShortcut });
 
 Bold.defaultProps = {
-  children: "Bold",
+  children: "Bold"
 };
 
 export default Bold;

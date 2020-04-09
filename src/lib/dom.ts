@@ -200,7 +200,7 @@ export function isTextNode(node: Node): node is Text {
  * works for IE. Changes Selection.
  */
 export function insertText(text: string) {
-  const selection = window.getSelection();
+  const selection = window.getSelection()!;
   const range = selection.getRangeAt(0);
   if (!range.collapsed) {
     range.deleteContents();
@@ -231,7 +231,7 @@ export function insertText(text: string) {
  * does not change selection.
  */
 export function insertNodes(...nodes: Node[]) {
-  const selection = window.getSelection();
+  const selection = window.getSelection()!;
   const range = selection.getRangeAt(0);
   if (!range.collapsed) {
     range.deleteContents();
@@ -261,7 +261,7 @@ export function insertNodes(...nodes: Node[]) {
  * Helper to replace current selection with range.
  */
 export function replaceSelection(range: Range) {
-  const selection = window.getSelection();
+  const selection = window.getSelection()!;
   selection.removeAllRanges();
   selection.addRange(range);
 }
@@ -270,14 +270,14 @@ export function replaceSelection(range: Range) {
  * Helper to to know if selection is collapsed.
  */
 export function isSelectionCollapsed() {
-  return window.getSelection().isCollapsed;
+  return window.getSelection()!.isCollapsed;
 }
 
 /**
  * Helper to get current selection range.
  */
 export function getSelectionRange() {
-  const selection = window.getSelection();
+  const selection = window.getSelection()!;
   return selection.rangeCount ? selection.getRangeAt(0) : null;
 }
 

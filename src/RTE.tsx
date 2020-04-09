@@ -7,7 +7,7 @@ import React, {
   EventHandler,
   FocusEvent,
   KeyboardEvent,
-  ReactElement,
+  ReactElement
 } from "react";
 import ContentEditable from "react-contenteditable";
 import Toolbar from "./components/Toolbar";
@@ -21,10 +21,10 @@ import {
   replaceNodeChildren,
   replaceSelection,
   selectEndOfNode,
-  traverse,
+  traverse
 } from "./lib/dom";
 import Undo from "./lib/undo";
-import styles from "./RTE.css";
+import styles from "./RTE.module.css";
 
 export interface Feature {
   onEnter?: (node: Node) => boolean;
@@ -36,7 +36,7 @@ export interface Feature {
 }
 
 interface PropTypes {
-  features?: Array<ReactElement<any>>;
+  features?: ReactElement<any>[];
   inputId?: string;
   onChange?: (data: { text: string; html: string }) => void;
   disabled?: boolean;
@@ -69,7 +69,7 @@ class RTE extends React.Component<PropTypes> {
     toolbarClassNameDisabled: "",
     placeholderClassName: "",
     placeholderClassNameDisabled: "",
-    toolbarPosition: "top",
+    toolbarPosition: "top"
   };
 
   /// Ref to react-contenteditable
@@ -79,7 +79,7 @@ class RTE extends React.Component<PropTypes> {
 
   // Our "plugins" api.
   private api = createAPI(
-    () => this.contentEditableRef && this.contentEditableRef.htmlEl,
+    () => this.contentEditableRef,
     () => this.handleChange(),
     () => this.undo.canUndo(),
     () => this.undo.canRedo(),
@@ -95,7 +95,7 @@ class RTE extends React.Component<PropTypes> {
   private featuresRef: Record<string, Feature> = {};
 
   // Export this for parent components.
-  public focus = () => this.contentEditableRef.htmlEl.focus();
+  public focus = () => this.contentEditableRef.focus();
 
   private unmounted = false;
 
@@ -150,13 +150,12 @@ class RTE extends React.Component<PropTypes> {
 
   public componentWillReceiveProps(props: PropTypes) {
     // Clear undo stack if content was set to sth different.
-    if (props.value !== this.contentEditableRef.htmlEl.innerHTML) {
+    if (props.value !== this.contentEditableRef.innerHTML) {
       this.undo.clear();
       this.saveCheckpoint(props.value);
-      if (isSelectionInside(this.contentEditableRef.htmlEl)) {
+      if (isSelectionInside(this.contentEditableRef)) {
         setTimeout(
-          () =>
-            !this.unmounted && selectEndOfNode(this.contentEditableRef.htmlEl)
+          () => !this.unmounted && selectEndOfNode(this.contentEditableRef)
         );
       }
     }
@@ -172,21 +171,21 @@ class RTE extends React.Component<PropTypes> {
     // TODO: don't rely on this hack.
     // It removes all `style` attr that
     // remaining execCommand still add.
-    traverse(this.contentEditableRef.htmlEl, (n: Node) => {
+    traverse(this.contentEditableRef, (n: Node) => {
       // tslint:disable-next-line:no-unused-expression
       (n as Element).removeAttribute && (n as Element).removeAttribute("style");
     });
 
     if (this.props.onChange) {
       this.props.onChange({
-        text: this.contentEditableRef.htmlEl.innerText,
-        html: this.contentEditableRef.htmlEl.innerHTML,
+        text: this.contentEditableRef.innerText,
+        html: this.contentEditableRef.innerHTML
       });
     }
-    this.contentEditableRef.htmlEl.focus();
+    this.contentEditableRef.focus();
     this.saveCheckpoint(
-      this.contentEditableRef.htmlEl.innerHTML,
-      this.contentEditableRef.htmlEl,
+      this.contentEditableRef.innerHTML,
+      this.contentEditableRef,
       getSelectionRange()
     );
   };
@@ -222,11 +221,7 @@ class RTE extends React.Component<PropTypes> {
     }
     const range = sel.getRangeAt(0);
     let container: Node | null = range.startContainer;
-    while (
-      !handled &&
-      container &&
-      container !== this.contentEditableRef.htmlEl
-    ) {
+    while (!handled && container && container !== this.contentEditableRef) {
       this.forEachFeature(b => {
         if (!handled) {
           handled = !!(b.onEnter && b.onEnter(container as HTMLElement));
@@ -368,17 +363,17 @@ class RTE extends React.Component<PropTypes> {
       // Rewrite startContainer if it was pointing to `nodeCloned`.
       const startContainer =
         rangeCloned.startContainer === nodeCloned
-          ? this.contentEditableRef.htmlEl
+          ? this.contentEditableRef
           : rangeCloned.startContainer;
 
       // Rewrite endContainer if it was pointing to `nodeCloned`.
       const endContainer =
         rangeCloned.endContainer === nodeCloned
-          ? this.contentEditableRef.htmlEl
+          ? this.contentEditableRef
           : rangeCloned.endContainer;
 
       // Replace children with the ones from nodeCloned.
-      replaceNodeChildren(this.contentEditableRef.htmlEl, nodeCloned);
+      replaceNodeChildren(this.contentEditableRef, nodeCloned);
 
       // Now setup the selection range.
       const finalRange = document.createRange();
@@ -388,8 +383,8 @@ class RTE extends React.Component<PropTypes> {
       // SELECT!
       replaceSelection(finalRange);
     } else {
-      this.contentEditableRef.htmlEl.innerHTML = html;
-      selectEndOfNode(this.contentEditableRef.htmlEl);
+      this.contentEditableRef.innerHTML = html;
+      selectEndOfNode(this.contentEditableRef);
     }
     this.handleChange();
   }
@@ -418,7 +413,7 @@ class RTE extends React.Component<PropTypes> {
           disabled: this.props.disabled,
           api: this.api,
           key: b.key || i,
-          ref: this.createFeatureRefHandler(b.key || i),
+          ref: this.createFeatureRefHandler(b.key || i)
         });
       })
     );
@@ -431,26 +426,26 @@ class RTE extends React.Component<PropTypes> {
         [this.props.toolbarClassNameDisabled!]: disabled,
         [styles.toolbarDisabled]: disabled,
         [styles.toolbarTop]: toolbarPosition === "top",
-        [styles.toolbarBottom]: toolbarPosition === "bottom",
+        [styles.toolbarBottom]: toolbarPosition === "bottom"
       }),
       contentContainer: cn(
         styles.contentEditableContainer,
         this.props.contentContainerClassName,
         {
           [this.props.contentContainerClassNameDisabled!]: disabled,
-          [styles.contentEditableContainerDisabled]: disabled,
+          [styles.contentEditableContainerDisabled]: disabled
         }
       ),
       content: cn(styles.contentEditable, this.props.contentClassName, {
         [this.props.contentClassNameDisabled!]: disabled,
-        [styles.contentEditableDisabled]: disabled,
+        [styles.contentEditableDisabled]: disabled
       }),
       root: cn(styles.root, this.props.className, {
-        [this.props.classNameDisabled!]: disabled,
+        [this.props.classNameDisabled!]: disabled
       }),
       placeholder: cn(styles.placeholder, this.props.placeholderClassName, {
-        [this.props.placeholderClassNameDisabled!]: disabled,
-      }),
+        [this.props.placeholderClassNameDisabled!]: disabled
+      })
     };
   }
 
@@ -460,7 +455,7 @@ class RTE extends React.Component<PropTypes> {
       placeholder,
       inputId,
       toolbarPosition,
-      disabled,
+      disabled
     } = this.props;
 
     const classNames = this.getClassNames();
@@ -474,10 +469,10 @@ class RTE extends React.Component<PropTypes> {
       onBlur: this.handleContentEditableBlur,
       onSelect: this.handleSelectionChange,
       className: classNames.content,
-      ref: this.handleContentEditableRef,
+      innerRef: this.handleContentEditableRef,
       html: value || "",
       disabled,
-      onChange: this.handleChange,
+      onChange: this.handleChange
     };
 
     if (placeholder) {

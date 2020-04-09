@@ -1,9 +1,9 @@
 ---
 name: README
-route: '/'
+route: "/"
 ---
 
-import { Playground } from 'docz'
+import { Playground } from "docz";
 
 import { CoralRTE, Bold, Italic, Blockquote } from "./src";
 
@@ -18,26 +18,16 @@ npm install @coralproject/rte --save-dev
 ```
 
 ## Demo
+
 <Playground>
-  <CoralRTE
-    features={[
-      <Bold />,
-      <Italic />,
-      <Blockquote />,
-    ]}
-  />
+  <CoralRTE features={[<Bold />, <Italic />, <Blockquote />]} />
 </Playground>
 
-
 #### Toolbar position at the bottom
+
 <Playground>
   <CoralRTE
     toolbarPosition="bottom"
-    features={[
-      <Bold />,
-      <Italic />,
-      <Blockquote />,
-    ]}
+    features={[<Bold />, <Italic />, <Blockquote />]}
   />
 </Playground>
-
