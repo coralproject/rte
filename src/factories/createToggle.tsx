@@ -1,7 +1,7 @@
-import React, { ComponentType, KeyboardEvent } from "react";
+import React, { ComponentType } from "react";
+import Squire from "squire-rte";
 
 import Button from "../components/Button";
-import { API } from "../lib/api";
 import { Feature } from "../RTE";
 
 export interface TogglePropTypes {
@@ -12,7 +12,10 @@ export interface TogglePropTypes {
 }
 
 export interface InjectedProps {
-  api: API;
+  /** Reference to squire */
+  squire: Squire;
+  /** ctrlKey dependend on the OS. Used to create shortcuts. */
+  ctrlKey: string;
 }
 
 interface State {
@@ -20,44 +23,78 @@ interface State {
   disabled: boolean;
 }
 
-interface CreateToggleOptions {
-  onEnter?: (this: API, node: Node) => boolean;
-  onShortcut?: (this: API, e: KeyboardEvent) => boolean;
-  isActive?: (this: API) => boolean;
-  isDisabled?: (this: API) => boolean;
+interface CreateToggleOptions<AdditionalProps> {
+  isActive?: (squire: Squire, props: AdditionalProps) => boolean;
+  isDisabled?: (squire: Squire, props: AdditionalProps) => boolean;
+  shortcuts?: (
+    ctrlKey: string
+  ) => Record<
+    string,
+    (
+      squire: Squire,
+      event: KeyboardEvent,
+      range: Range,
+      props: AdditionalProps
+    ) => void
+  >;
 }
 
 /**
  *  createToggle creates a button that can be active, inactive or disabled
  *  and reacts on clicks. All callbacks are bound to the API instance.
  */
-const createToggle = (
-  execCommand: (this: any) => void,
+function createToggle<AdditionalProps>(
+  execCommand: (squire: Squire, props: AdditionalProps) => void,
   {
-    onEnter,
-    onShortcut,
     isActive = () => false,
     isDisabled = () => false,
-  }: CreateToggleOptions = {}
-): ComponentType<TogglePropTypes> => {
-  class Toggle extends React.Component<TogglePropTypes & InjectedProps, State>
+    shortcuts
+  }: CreateToggleOptions<AdditionalProps> = {}
+): ComponentType<TogglePropTypes & AdditionalProps> {
+  class Toggle
+    extends React.Component<
+      TogglePropTypes & InjectedProps & AdditionalProps,
+      State
+    >
     implements Feature {
     public state = {
       active: false,
-      disabled: false,
+      disabled: false
     };
 
     private unmounted = false;
-    private execCommand = () => execCommand.apply(this.props.api);
+    private syncInProgress = false;
 
-    public isActive = () => isActive.apply(this.props.api);
-    public isDisabled = () => isDisabled.apply(this.props.api);
-    public onEnter = (...args: any[]) =>
-      onEnter && onEnter.apply(this.props.api, args);
-    public onShortcut = (...args: any[]) =>
-      onShortcut && onShortcut.apply(this.props.api, args);
+    private execCommand = () => execCommand(this.props.squire, this.props);
+    private isActive = () =>
+      document.activeElement === this.props.squire.getRoot() &&
+      isActive(this.props.squire, this.props);
+    private isDisabled = () => isDisabled(this.props.squire, this.props);
 
-    public onSelectionChange() {
+    public constructor(
+      props: TogglePropTypes & InjectedProps & AdditionalProps
+    ) {
+      super(props);
+      if (shortcuts) {
+        const resolved = shortcuts(this.props.ctrlKey);
+        Object.keys(resolved).forEach(key => {
+          this.props.squire.setKeyHandler(key, (squire, event, range) => {
+            event.preventDefault();
+            resolved[key](squire, event, range, this.props);
+          });
+        });
+      }
+    }
+
+    public onContentEditableFocus() {
+      this.syncState();
+    }
+
+    public onContentEditableBlur() {
+      this.syncState();
+    }
+
+    public onPathChange() {
       this.syncState();
     }
 
@@ -65,28 +102,32 @@ const createToggle = (
       this.unmounted = true;
     }
 
-    private formatToggle = () => {
-      this.execCommand();
-    };
-
     private handleClick = () => {
-      this.props.api.focus();
-      this.formatToggle();
-      this.props.api.focus();
-      setTimeout(() => !this.unmounted && this.syncState());
+      this.execCommand();
+      this.syncState();
     };
 
     private syncState = () => {
-      if (this.state.active !== this.isActive()) {
-        this.setState(state => ({
-          active: !state.active,
-        }));
+      if (this.syncInProgress) {
+        return;
       }
-      if (this.state.disabled !== this.isDisabled()) {
-        this.setState(state => ({
-          disabled: !state.disabled,
-        }));
-      }
+      this.syncInProgress = true;
+      setTimeout(() => {
+        this.syncInProgress = false;
+        if (this.unmounted) {
+          return;
+        }
+        if (this.state.active !== this.isActive()) {
+          this.setState(state => ({
+            active: !state.active
+          }));
+        }
+        if (this.state.disabled !== this.isDisabled()) {
+          this.setState(state => ({
+            disabled: !state.disabled
+          }));
+        }
+      });
     };
 
     public render() {
@@ -105,6 +146,6 @@ const createToggle = (
     }
   }
   return Toggle as any;
-};
+}
 
 export default createToggle;

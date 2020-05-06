@@ -1,26 +1,30 @@
+import React from "react";
 import Squire from "squire-rte";
 
 import createToggle from "../factories/createToggle";
 
 function execCommand(squire: Squire) {
-  if (squire.hasFormat("I")) {
-    squire.removeItalic();
+  if (squire.hasFormat("S")) {
+    squire.changeFormat(null, { tag: "S" });
   } else {
-    squire.italic();
+    squire.changeFormat({ tag: "S" }, null);
   }
+  squire.focus();
 }
 
 function isActive(squire: Squire) {
-  return squire.hasFormat("I");
+  return squire.hasFormat("S");
 }
+
 function isDisabled(squire: Squire) {
   // Check if a block node already enforces this styling, if so
   // disable this feature.
   let blockOverwrites: boolean = false;
   squire.forEachBlock((n: Node) => {
     if (
-      window.getComputedStyle(n as Element).getPropertyValue("font-style") ===
-      "italic"
+      window
+        .getComputedStyle(n as Element)
+        .getPropertyValue("text-decoration") === "line-through"
     ) {
       blockOverwrites = true;
       return true;
@@ -30,16 +34,16 @@ function isDisabled(squire: Squire) {
   return blockOverwrites;
 }
 
-const Italic = createToggle(execCommand, {
+const Strike = createToggle(execCommand, {
   isActive,
   isDisabled,
   shortcuts: ctrlKey => ({
-    [ctrlKey + "i"]: execCommand
+    [ctrlKey + "s"]: execCommand
   })
 });
 
-Italic.defaultProps = {
-  children: "Italic"
+Strike.defaultProps = {
+  children: <s>S</s>
 };
 
-export default Italic;
+export default Strike;
