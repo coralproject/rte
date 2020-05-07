@@ -27,6 +27,7 @@ function isDisabled(squire: Squire) {
         .getPropertyValue("text-decoration") === "line-through"
     ) {
       blockOverwrites = true;
+      // Terminate loop.
       return true;
     }
     return false;

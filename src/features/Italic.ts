@@ -23,6 +23,7 @@ function isDisabled(squire: Squire) {
       "italic"
     ) {
       blockOverwrites = true;
+      // Terminate loop.
       return true;
     }
     return false;

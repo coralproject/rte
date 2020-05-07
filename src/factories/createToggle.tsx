@@ -11,6 +11,7 @@ export interface TogglePropTypes {
   disabled?: boolean;
 }
 
+/** InjectedProps are props injected by the RTE */
 export interface InjectedProps {
   /** Reference to squire */
   squire: Squire;
@@ -26,6 +27,17 @@ interface State {
 interface CreateToggleOptions<AdditionalProps> {
   isActive?: (squire: Squire, props: AdditionalProps) => boolean;
   isDisabled?: (squire: Squire, props: AdditionalProps) => boolean;
+  /**
+   * Shortcuts can be used to define keyboard shortcuts e.g:
+   *
+   * ```ts
+   * {
+   *   shortcuts: ctrlKey => ({
+   *     [ctrlKey + "b"]: execBoldCommand
+   *   })
+   * }
+   * ```
+   */
   shortcuts?: (
     ctrlKey: string
   ) => Record<
@@ -63,6 +75,7 @@ function createToggle<AdditionalProps>(
     };
 
     private unmounted = false;
+    /** If true, a state sync has been requested and is in progress */
     private syncInProgress = false;
 
     private execCommand = () => execCommand(this.props.squire, this.props);
@@ -75,6 +88,7 @@ function createToggle<AdditionalProps>(
       props: TogglePropTypes & InjectedProps & AdditionalProps
     ) {
       super(props);
+      // Register shortcuts to squire-rte.
       if (shortcuts) {
         const resolved = shortcuts(this.props.ctrlKey);
         Object.keys(resolved).forEach(key => {
@@ -107,11 +121,15 @@ function createToggle<AdditionalProps>(
       this.syncState();
     };
 
+    /** Call `isActive` and `isDisabled` to determine current state. */
     private syncState = () => {
+      // This is to prevent multiple syncs in one tick.
       if (this.syncInProgress) {
         return;
       }
       this.syncInProgress = true;
+
+      // Perform syncing on next tick.
       setTimeout(() => {
         this.syncInProgress = false;
         if (this.unmounted) {
