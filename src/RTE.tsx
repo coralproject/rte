@@ -69,7 +69,8 @@ interface PropTypes {
    */
   noSanitizeInsert?: boolean;
   /**
-   * Function to call when sanitizing HTML.
+   * Function to call when sanitizing HTML, this will also allow pasting HTML
+   * if not disabled by `pasteTextOnly`.
    *
    * Can be used with DOMPurify:
    * ```
@@ -143,7 +144,7 @@ class RTE extends React.Component<PropTypes, State> {
     });
     this.squire.addEventListener("pathChange", this.handlePathChange);
     this.squire.addEventListener("input", this.handleChange);
-    if (this.props.pasteTextOnly) {
+    if (this.props.pasteTextOnly || !this.props.sanitizeToDOMFragment) {
       this.squire.addEventListener("willPaste", this.handlePasteTextOnly);
     }
     this.squire.addEventListener("focus", this.handleContentEditableFocus);
