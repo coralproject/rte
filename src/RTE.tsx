@@ -78,7 +78,7 @@ interface PropTypes {
    *   if (!html) {
    *     return document.createDocumentFragment()
    *   }
-   *   return purify.sanitize(html, { RETURN_DOM_FRAGMENT: true });
+   *   return DOMPurify.sanitize(html, { RETURN_DOM_FRAGMENT: true });
    * };
    */
   sanitizeToDOMFragment?: (

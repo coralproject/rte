@@ -12,12 +12,16 @@ npm install @coralproject/rte --save-dev
 
 ```js
 import { CoralRTE, Bold, Italic, Blockquote } from "@coralproject/rte";
+import createDOMPurify from "dompurify";
+
+// See https://github.com/cure53/DOMPurify
+const DOMPurify = createDOMPurify(window);
 
 const sanitizeToDOMFragment = html => {
   if (!html) {
     return document.createDocumentFragment();
   }
-  return purify.sanitize(html, { RETURN_DOM_FRAGMENT: true });
+  return DOMPurify.sanitize(html, { RETURN_DOM_FRAGMENT: true });
 };
 
 <CoralRTE
