@@ -13,5 +13,37 @@ npm install @coralproject/rte --save-dev
 ```js
 import { CoralRTE, Bold, Italic, Blockquote } from "@coralproject/rte";
 
-<CoralRTE features={[<Bold />, <Italic />, <Blockquote />]} />;
+const sanitizeToDOMFragment = html => {
+  if (!html) {
+    return document.createDocumentFragment();
+  }
+  return purify.sanitize(html, { RETURN_DOM_FRAGMENT: true });
+};
+
+<CoralRTE
+  inputID="rte-field"
+  className="coral-rte"
+  contentClassName="coral-rte-content"
+  placeholderClassName="coral-rte-placeholder"
+  toolbarClassName="coral-rte-toolbar"
+  onChange={html => setValue(html)}
+  value={value}
+  disabled={disabled}
+  placeholder={"Enter some content"}
+  features={[<Bold />, <Italic />, <Blockquote />]}
+  toolbarPosition="bottom"
+  sanitizeToDOMFragment={sanitizeToDOMFragment}
+/>;
+```
+
+## Development
+
+```sh
+npm run dev
+```
+
+## Build
+
+```sh
+npm run build
 ```
