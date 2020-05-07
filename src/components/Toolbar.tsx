@@ -1,7 +1,7 @@
 import cn from "classnames";
 import React from "react";
 
-import styles from "./Toolbar.css";
+import styles from "./Toolbar.module.css";
 
 export interface ToolbarPropTypes {
   className?: string;

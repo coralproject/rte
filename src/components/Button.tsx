@@ -1,7 +1,7 @@
 import cn from "classnames";
 import React, { ButtonHTMLAttributes } from "react";
 
-import styles from "./Button.css";
+import styles from "./Button.module.css";
 
 export interface ButtonPropTypes
   extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -24,7 +24,7 @@ class Button extends React.Component<ButtonPropTypes> {
       <button
         type="button"
         className={cn(className, styles.button, {
-          [cn(styles.active, activeClassName)]: active,
+          [cn(styles.active, activeClassName)]: active
         })}
         {...rest}
       >

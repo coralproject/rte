@@ -1,11 +1,25 @@
 ---
 name: README
-route: '/'
+route: "/"
 ---
 
-import { Playground } from 'docz'
+import { Playground } from "docz";
+import { useState } from "react";
 
-import { CoralRTE, Bold, Italic, Blockquote } from "./src";
+import "./ssrMocks";
+
+import {
+  CoralRTE,
+  Bold,
+  Italic,
+  Blockquote,
+  Strike,
+  OrderedList,
+  UnorderedList,
+  Spoiler
+} from "./src";
+
+import "./README.css";
 
 # Introduction
 
@@ -18,18 +32,31 @@ npm install @coralproject/rte --save-dev
 ```
 
 ## Demo
+
 <Playground>
-  <CoralRTE
-    features={[
-      <Bold />,
-      <Italic />,
-      <Blockquote />,
-    ]}
-  />
+  {() => {
+    const [value, setValue] = useState(false);
+    return (
+      <CoralRTE
+        value={value}
+        onChange={html => setValue(html)}
+        placeholder="Type something"
+        features={[
+          <Bold />,
+          <Italic />,
+          <Blockquote />,
+          <Strike />,
+          <OrderedList />,
+          <UnorderedList />,
+          <Spoiler />
+        ]}
+      />
+    );
+  }}
 </Playground>
 
-
 #### Toolbar position at the bottom
+
 <Playground>
   <CoralRTE
     toolbarPosition="bottom"
@@ -37,7 +64,10 @@ npm install @coralproject/rte --save-dev
       <Bold />,
       <Italic />,
       <Blockquote />,
+      <Strike />,
+      <OrderedList />,
+      <UnorderedList />,
+      <Spoiler />
     ]}
   />
 </Playground>
-

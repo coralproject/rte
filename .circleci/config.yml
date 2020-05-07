@@ -25,9 +25,6 @@ jobs:
           name: Update NPM
           command: sudo npm update -g npm
       - run:
-          name: Audit dependencies
-          command: npm audit
-      - run:
           name: Install dependencies
           command: npm install
       - save_cache:

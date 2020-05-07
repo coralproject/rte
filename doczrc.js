@@ -1,16 +1,8 @@
 // doczrc.js
-import { css } from "docz-plugin-css";
 
 export default {
   title: "CoralRTE",
-  typescript: true,
-  plugins: [
-    css({
-      preprocessor: "postcss",
-      cssmodules: true,
-      loaderOpts: {
-        plugins: [],
-      },
-    }),
-  ],
+  host: process.env.HOST || "0.0.0.0",
+  port: parseInt(process.env.DOCZ_PORT, 10) || 3030,
+  files: "**/*.mdx"
 };

@@ -1,63 +1,93 @@
-import bowser from "bowser";
 import cn from "classnames";
-import throttle from "lodash/throttle";
 import PropTypes from "prop-types";
+import Squire from "squire-rte";
 import React, {
-  ClipboardEvent,
   EventHandler,
   FocusEvent,
-  KeyboardEvent,
   ReactElement,
+  HTMLAttributes
 } from "react";
-import ContentEditable from "react-contenteditable";
 import Toolbar from "./components/Toolbar";
-import createAPI from "./lib/api";
-import {
-  cloneNodeAndRange,
-  getSelectionRange,
-  insertNewLine,
-  insertText,
-  isSelectionInside,
-  replaceNodeChildren,
-  replaceSelection,
-  selectEndOfNode,
-  traverse,
-} from "./lib/dom";
-import Undo from "./lib/undo";
-import styles from "./RTE.css";
+import styles from "./RTE.module.css";
+import { getBrowserInfo } from "./lib/browserInfo";
 
 export interface Feature {
-  onEnter?: (node: Node) => boolean;
-  onShortcut?: (e: KeyboardEvent) => boolean;
-  isActive?: () => boolean;
-  isDisabled?: () => boolean;
-  onSelectionChange?: () => void;
-  getFeatureInstance?: () => Feature;
+  onPathChange?: () => void;
+  onContentEditableFocus?: () => void;
+  onContentEditableBlur?: () => void;
 }
 
 interface PropTypes {
-  features?: Array<ReactElement<any>>;
-  inputId?: string;
-  onChange?: (data: { text: string; html: string }) => void;
+  /** features is an array of RTE features to be included */
+  features?: ReactElement<any>[];
+  /** inputID is the id attached to the contenteditable field */
+  inputID?: string;
+  /** onChange is called whenenver the `html` value has changed */
+  onChange?: (html: string) => void;
+  /** disabled lets you turn on/off the RTE */
   disabled?: boolean;
+  /** className added to the root */
   className?: string;
+  /** className added to the root when disabled */
   classNameDisabled?: string;
+  /** className added to the html content */
   contentClassName?: string;
+  /** className added to the html content when disabled */
   contentClassNameDisabled?: string;
+  /** className added to the html content container */
   contentContainerClassName?: string;
+  /** className added to the html content container when disabled */
   contentContainerClassNameDisabled?: string;
+  /** className added to the toolbar */
   toolbarClassName?: string;
+  /** className added to the toolbar when disabled */
   toolbarClassNameDisabled?: string;
+  /** className added to the placeholder */
   placeholderClassName?: string;
+  /** className added to the placeholder when disabled */
   placeholderClassNameDisabled?: string;
+  /** placeholder to show when RTE is empty */
   placeholder?: string;
+  /** current html value */
   value?: string;
+  /** toolbarPosition lets you switch the toolbar to top/bottom */
   toolbarPosition?: "top" | "bottom";
+  /** onFocus is called whenenver the RTE receives focus */
   onFocus?: EventHandler<FocusEvent>;
+  /** onFocus is called whenenver the RTE looses focus */
   onBlur?: EventHandler<FocusEvent>;
+  /** Only allow pasting text */
+  pasteTextOnly?: boolean;
+  /**
+   * Sanitize when `value` is applied. Defaults to `true`.
+   * Important: No sanitization will take place unless `sanitizeToDOMFragment` is set.
+   */
+  sanitizeValue?: boolean;
+  /**
+   * Function to call when sanitizing HTML, this will also allow pasting HTML
+   * if not disabled by `pasteTextOnly`.
+   *
+   * Can be used with DOMPurify:
+   * ```
+   * const sanitizeToDOMFragment = (html: string) => {
+   *   if (!html) {
+   *     return document.createDocumentFragment()
+   *   }
+   *   return DOMPurify.sanitize(html, { RETURN_DOM_FRAGMENT: true });
+   * };
+   */
+  sanitizeToDOMFragment?: (
+    html: string,
+    isPaste: boolean,
+    self: Squire
+  ) => DocumentFragment;
 }
 
-class RTE extends React.Component<PropTypes> {
+interface State {
+  initialized: boolean;
+}
+
+class RTE extends React.Component<PropTypes, State> {
   public static defaultProps = {
     features: [],
     classNameDisabled: "",
@@ -70,56 +100,26 @@ class RTE extends React.Component<PropTypes> {
     placeholderClassName: "",
     placeholderClassNameDisabled: "",
     toolbarPosition: "top",
+    sanitizeValue: true
   };
 
-  /// Ref to react-contenteditable
-  private contentEditableRef: any = null;
+  /// Ref to squire node.
+  private contentEditableRef: HTMLDivElement | null = null;
   /// Ref to root container.
   private rootRef: HTMLDivElement | null = null;
-
-  // Our "plugins" api.
-  private api = createAPI(
-    () => this.contentEditableRef && this.contentEditableRef.htmlEl,
-    () => this.handleChange(),
-    () => this.undo.canUndo(),
-    () => this.undo.canRedo(),
-    () => this.handleUndo(),
-    () => this.handleRedo(),
-    () => this.contentEditableFocus
-  );
-
-  // Instance of undo stack.
-  private undo = new Undo();
 
   // Refs to the features.
   private featuresRef: Record<string, Feature> = {};
 
   // Export this for parent components.
-  public focus = () => this.contentEditableRef.htmlEl.focus();
-
-  private unmounted = false;
-
-  /** Does the contenteditable has a focus? */
-  private contentEditableFocus = false;
+  public focus = () => this.squire.focus();
 
   /** Is focus somewhere inside the root container */
   private focusInsideRoot = false;
 
-  // Should be called on every change to feed
-  // our Undo stack. We save the innerHTML and if available
-  // a copy of the contentEditable node and a copy of the range.
-  private saveCheckpoint = throttle((html, node?, range?) => {
-    const meta = [];
-    if (node && range) {
-      meta.push(...cloneNodeAndRange(node, range));
-    }
-    this.undo.save(html || "", ...meta);
-  }, 1000);
+  private squire: Squire;
 
-  constructor(props: PropTypes) {
-    super(props);
-    this.saveCheckpoint(props.value);
-  }
+  private ctrlKey = getBrowserInfo().macOS ? "meta-" : "ctrl-";
 
   // Returns a handler that fills our `featuresRef`.
   private createFeatureRefHandler(key: string | number) {
@@ -132,126 +132,105 @@ class RTE extends React.Component<PropTypes> {
     };
   }
 
-  // Ref to react-contenteditable.
-  private handleContentEditableRef = (ref: any) =>
-    (this.contentEditableRef = ref);
+  private initSquire = () => {
+    this.squire = new Squire(this.contentEditableRef!, {
+      isInsertedHTMLSanitized: Boolean(this.props.sanitizeToDOMFragment),
+      isSetHTMLSanitized:
+        Boolean(this.props.sanitizeToDOMFragment) && this.props.sanitizeValue,
+      sanitizeToDOMFragment: this.props.sanitizeToDOMFragment
+    });
+    this.squire.addEventListener("pathChange", this.handlePathChange);
+    this.squire.addEventListener("input", this.handleChange);
+    if (this.props.pasteTextOnly || !this.props.sanitizeToDOMFragment) {
+      this.squire.addEventListener("willPaste", this.handlePasteTextOnly);
+    }
+    this.squire.addEventListener("focus", this.handleContentEditableFocus);
+    this.squire.addEventListener("blur", this.handleContentEditableBlur);
 
-  // Ref to root container.
+    // Reset shortcuts. We add shortcuts through the added features.
+    [
+      this.ctrlKey + "b",
+      this.ctrlKey + "i",
+      this.ctrlKey + "u",
+      this.ctrlKey + "shift-7",
+      this.ctrlKey + "shift-5",
+      this.ctrlKey + "shift-6",
+      this.ctrlKey + "shift-8",
+      this.ctrlKey + "shift-9",
+      this.ctrlKey + "shift-[",
+      this.ctrlKey + "shift-]",
+      this.ctrlKey + "shift-d"
+    ].forEach(key => this.squire.setKeyHandler(key, null));
+
+    // Set current value.
+    if (this.props.value) {
+      this.squire.modifyDocument(() => {
+        this.squire.setHTML(this.props.value!);
+        this.contentEditableRef!.setAttribute(
+          "contenteditable",
+          JSON.stringify(!this.props.disabled)
+        );
+      });
+    }
+  };
+
+  /** Ref to react-contenteditable. */
+  private handleContentEditableRef = (ref: any) => {
+    this.contentEditableRef = ref;
+    if (ref) {
+      this.initSquire();
+      this.setState({ initialized: true });
+    }
+  };
+
+  /** Ref to root container. */
   private handleRootRef = (ref: any) => (this.rootRef = ref);
 
+  /** iterate through each feature */
   private forEachFeature(callback: (instance: Feature) => void) {
     Object.keys(this.featuresRef).map(k => {
-      const instance = this.featuresRef[k].getFeatureInstance
-        ? this.featuresRef[k].getFeatureInstance!()
-        : this.featuresRef[k];
-      callback(instance);
+      callback(this.featuresRef[k]);
     });
   }
 
-  public componentWillReceiveProps(props: PropTypes) {
-    // Clear undo stack if content was set to sth different.
-    if (props.value !== this.contentEditableRef.htmlEl.innerHTML) {
-      this.undo.clear();
-      this.saveCheckpoint(props.value);
-      if (isSelectionInside(this.contentEditableRef.htmlEl)) {
-        setTimeout(
-          () =>
-            !this.unmounted && selectEndOfNode(this.contentEditableRef.htmlEl)
-        );
+  public componentDidUpdate() {
+    if (this.contentEditableRef) {
+      // Enable/disable through the use of `contenteditable` attr.
+      const contenteditable = JSON.stringify(!this.props.disabled);
+      if (
+        this.contentEditableRef.getAttribute("contenteditable") !==
+        contenteditable
+      ) {
+        this.squire.modifyDocument(() => {
+          this.contentEditableRef!.setAttribute(
+            "contenteditable",
+            contenteditable
+          );
+        });
+      }
+      // Change html if `value` changed.
+      if (this.props.value !== this.squire.getHTML()) {
+        this.squire.modifyDocument(() => {
+          this.squire.setHTML(this.props.value || "");
+        });
       }
     }
-  }
-
-  public componentWillUnmount() {
-    // Cancel pending stuff.
-    this.saveCheckpoint.cancel();
-    this.unmounted = true;
   }
 
   private handleChange = () => {
-    // TODO: don't rely on this hack.
-    // It removes all `style` attr that
-    // remaining execCommand still add.
-    traverse(this.contentEditableRef.htmlEl, (n: Node) => {
-      // tslint:disable-next-line:no-unused-expression
-      (n as Element).removeAttribute && (n as Element).removeAttribute("style");
-    });
-
     if (this.props.onChange) {
-      this.props.onChange({
-        text: this.contentEditableRef.htmlEl.innerText,
-        html: this.contentEditableRef.htmlEl.innerHTML,
-      });
+      this.props.onChange(this.squire.getHTML());
     }
-    this.contentEditableRef.htmlEl.focus();
-    this.saveCheckpoint(
-      this.contentEditableRef.htmlEl.innerHTML,
-      this.contentEditableRef.htmlEl,
-      getSelectionRange()
-    );
   };
 
-  private handleSelectionChange = () => {
-    // Let features know selection has changeed, so they
+  private handlePathChange = () => {
+    // Let features know path has changed, so they
     // can update.
     this.forEachFeature(b => {
-      // tslint:disable-next-line:no-unused-expression
-      b.onSelectionChange && b.onSelectionChange();
-    });
-  };
-
-  // Allow features to handle shortcuts.
-  private handleShortcut = (e: KeyboardEvent) => {
-    let handled = false;
-    this.forEachFeature(b => {
-      if (!handled) {
-        handled = !!(b.onShortcut && b.onShortcut(e));
+      if (b.onPathChange) {
+        b.onPathChange();
       }
     });
-    return handled;
-  };
-
-  // Called when Enter was pressed without shift.
-  // Traverses from bottom to top and calling
-  // feature handlers and stops when one has handled this event.
-  private handleSpecialEnter = () => {
-    let handled = false;
-    const sel = window.getSelection();
-    if (!sel) {
-      return false;
-    }
-    const range = sel.getRangeAt(0);
-    let container: Node | null = range.startContainer;
-    while (
-      !handled &&
-      container &&
-      container !== this.contentEditableRef.htmlEl
-    ) {
-      this.forEachFeature(b => {
-        if (!handled) {
-          handled = !!(b.onEnter && b.onEnter(container as HTMLElement));
-        }
-      });
-      container = container.parentNode;
-    }
-    return handled;
-  };
-
-  private handleCut = () => {
-    // IE has issues not firing the onChange event.
-    if (bowser.msie) {
-      setTimeout(() => !this.unmounted && this.handleChange());
-    }
-  };
-
-  private handleContentEditableFocus = () => {
-    this.contentEditableFocus = true;
-  };
-
-  private handleContentEditableBlur = () => {
-    this.contentEditableFocus = false;
-    // Sometimes the onselect event doesn't fire on blur.
-    this.handleSelectionChange();
   };
 
   private handleRootFocus = (e: FocusEvent) => {
@@ -274,6 +253,13 @@ class RTE extends React.Component<PropTypes> {
       // Focus didn't leave the RTE, suppress event.
       return;
     }
+
+    // Clear selection range seems to fix a weird bug:
+    // Disabling, clearing and reenabling the RTE leaves
+    // selection in a weird state where making lists fail to work.
+    // Only reproduced in Chrome 81.0.4044.129.
+    window.getSelection()?.removeAllRanges();
+
     this.focusInsideRoot = false;
     // Call event handler if available.
     if (this.props.onBlur) {
@@ -281,144 +267,46 @@ class RTE extends React.Component<PropTypes> {
     }
   };
 
-  // We intercept pasting, so that we
-  // force text/plain content.
-  private handlePaste = (e: ClipboardEvent) => {
-    // Get text representation of clipboard
-    // This works cross browser.
-    const text: string = (
-      ((e as any).originalEvent || e).clipboardData ||
-      (window as any).clipboardData
-    ).getData("Text");
-
-    // IE does this funny thing to change the selection after the paste
-    // event, remember the range for now.
-    const range = getSelectionRange()!.cloneRange();
-
-    // Run outside of event loop to fix
-    // selection issues with IE.
-    setTimeout(() => {
-      // Manually delete range, cope with IE.
-      if (!range.collapsed) {
-        range.deleteContents();
+  private handleContentEditableFocus = (e: FocusEvent) => {
+    this.forEachFeature(b => {
+      if (b.onContentEditableFocus) {
+        b.onContentEditableFocus();
       }
-
-      // insert text manually
-      insertText(text);
-      this.handleChange();
     });
-
-    e.preventDefault();
-    return false;
   };
 
-  private handleKeyDown = (e: KeyboardEvent) => {
-    // IE has issues not firing the onChange event.
-    if (bowser.msie) {
-      setTimeout(() => !this.unmounted && this.handleChange());
-    }
-
-    // Undo Redo 'Z'
-    if (e.key === "z" && (e.metaKey || e.ctrlKey)) {
-      if (e.shiftKey) {
-        this.handleRedo();
-      } else {
-        this.handleUndo();
+  private handleContentEditableBlur = (e: FocusEvent) => {
+    this.forEachFeature(b => {
+      if (b.onContentEditableBlur) {
+        b.onContentEditableBlur();
       }
-      e.preventDefault();
-      return false;
-    }
-
-    if (e.metaKey || e.ctrlKey) {
-      if (this.handleShortcut(e)) {
-        e.preventDefault();
-        return false;
-      }
-    }
-
-    // Newlines Or Special Enter Behaviors.
-    if (e.key === "Enter") {
-      if (!e.shiftKey && this.handleSpecialEnter()) {
-        this.handleChange();
-        e.preventDefault();
-        return false;
-      }
-
-      insertNewLine(true);
-
-      this.handleChange();
-      e.preventDefault();
-      return false;
-    }
-
-    return;
+    });
   };
 
-  private restoreCheckpoint(html: string, node: Node, range: Range) {
-    if (node && range) {
-      // We need to clone it, otherwise we'll mutate
-      // that original one which can still be in the undo stack.
-      const [nodeCloned, rangeCloned] = cloneNodeAndRange(node, range);
-
-      // Remember range values, as `rangeCloned` can changed during
-      // DOM manipulation.
-      const startOffset = rangeCloned.startOffset;
-      const endOffset = rangeCloned.startOffset;
-
-      // Rewrite startContainer if it was pointing to `nodeCloned`.
-      const startContainer =
-        rangeCloned.startContainer === nodeCloned
-          ? this.contentEditableRef.htmlEl
-          : rangeCloned.startContainer;
-
-      // Rewrite endContainer if it was pointing to `nodeCloned`.
-      const endContainer =
-        rangeCloned.endContainer === nodeCloned
-          ? this.contentEditableRef.htmlEl
-          : rangeCloned.endContainer;
-
-      // Replace children with the ones from nodeCloned.
-      replaceNodeChildren(this.contentEditableRef.htmlEl, nodeCloned);
-
-      // Now setup the selection range.
-      const finalRange = document.createRange();
-      finalRange.setStart(startContainer, startOffset);
-      finalRange.setEnd(endContainer, endOffset);
-
-      // SELECT!
-      replaceSelection(finalRange);
-    } else {
-      this.contentEditableRef.htmlEl.innerHTML = html;
-      selectEndOfNode(this.contentEditableRef.htmlEl);
-    }
-    this.handleChange();
-  }
-
-  private handleUndo() {
-    this.saveCheckpoint.flush();
-    if (this.undo.canUndo()) {
-      const [html, node, range] = this.undo.undo();
-      this.restoreCheckpoint(html, node, range);
-    }
-  }
-
-  private handleRedo() {
-    this.saveCheckpoint.flush();
-    if (this.undo.canRedo()) {
-      const [html, node, range] = this.undo.redo();
-      this.restoreCheckpoint(html, node, range);
-    }
-  }
+  // We intercept pasting, so that we
+  // force text/plain content if `pasteTextOnly` is set.
+  private handlePasteTextOnly = (event: {
+    fragment: DocumentFragment;
+    preventDefault: () => void;
+    defaultPrevented: boolean;
+  }) => {
+    // Remove html.
+    event.fragment.textContent = event.fragment.textContent;
+  };
 
   private renderFeatures() {
+    if (!this.squire) {
+      return null;
+    }
     return (
       this.props.features &&
       this.props.features.map((b, i) => {
         return React.cloneElement(b, {
           disabled: this.props.disabled,
-          api: this.api,
+          squire: this.squire,
+          ctrlKey: this.ctrlKey,
           key: b.key || i,
-          ref: this.createFeatureRefHandler(b.key || i),
+          ref: this.createFeatureRefHandler(b.key || i)
         });
       })
     );
@@ -431,53 +319,37 @@ class RTE extends React.Component<PropTypes> {
         [this.props.toolbarClassNameDisabled!]: disabled,
         [styles.toolbarDisabled]: disabled,
         [styles.toolbarTop]: toolbarPosition === "top",
-        [styles.toolbarBottom]: toolbarPosition === "bottom",
+        [styles.toolbarBottom]: toolbarPosition === "bottom"
       }),
       contentContainer: cn(
         styles.contentEditableContainer,
         this.props.contentContainerClassName,
         {
           [this.props.contentContainerClassNameDisabled!]: disabled,
-          [styles.contentEditableContainerDisabled]: disabled,
+          [styles.contentEditableContainerDisabled]: disabled
         }
       ),
       content: cn(styles.contentEditable, this.props.contentClassName, {
         [this.props.contentClassNameDisabled!]: disabled,
-        [styles.contentEditableDisabled]: disabled,
+        [styles.contentEditableDisabled]: disabled
       }),
       root: cn(styles.root, this.props.className, {
-        [this.props.classNameDisabled!]: disabled,
+        [this.props.classNameDisabled!]: disabled
       }),
       placeholder: cn(styles.placeholder, this.props.placeholderClassName, {
-        [this.props.placeholderClassNameDisabled!]: disabled,
-      }),
+        [this.props.placeholderClassNameDisabled!]: disabled
+      })
     };
   }
 
   public render() {
-    const {
-      value,
-      placeholder,
-      inputId,
-      toolbarPosition,
-      disabled,
-    } = this.props;
+    const { value, placeholder, inputID, toolbarPosition } = this.props;
 
     const classNames = this.getClassNames();
 
-    const contentEditableProps: any = {
-      id: inputId,
-      onKeyDown: this.handleKeyDown,
-      onPaste: this.handlePaste,
-      onCut: this.handleCut,
-      onFocus: this.handleContentEditableFocus,
-      onBlur: this.handleContentEditableBlur,
-      onSelect: this.handleSelectionChange,
-      className: classNames.content,
-      ref: this.handleContentEditableRef,
-      html: value || "",
-      disabled,
-      onChange: this.handleChange,
+    const contentEditableProps: HTMLAttributes<HTMLDivElement> = {
+      id: inputID,
+      className: classNames.content
     };
 
     if (placeholder) {
@@ -496,9 +368,9 @@ class RTE extends React.Component<PropTypes> {
             {this.renderFeatures()}
           </Toolbar>
         )}
-        <div className={styles.contentEditableContainer}>
-          <ContentEditable {...contentEditableProps} />
-          {!value && placeholder && (
+        <div className={classNames.contentContainer}>
+          <div {...contentEditableProps} ref={this.handleContentEditableRef} />
+          {(!value || value === "<div><br></div>") && placeholder && (
             <div aria-hidden="true" className={classNames.placeholder}>
               {placeholder}
             </div>
