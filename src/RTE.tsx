@@ -18,7 +18,7 @@ export interface Feature {
 }
 
 interface PropTypes {
-  /** features is an array RTE features to be included */
+  /** features is an array of RTE features to be included */
   features?: ReactElement<any>[];
   /** inputID is the id attached to the contenteditable field */
   inputID?: string;
