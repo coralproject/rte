@@ -1,6 +1,6 @@
 # Coral RTE [![CircleCI](https://circleci.com/gh/coralproject/rte.svg?style=svg)](https://circleci.com/gh/coralproject/rte)
 
-Coral RTE is a lightweight and extensible Rich Text Editor based on React.
+Coral RTE is a lightweight and extensible Rich Text Editor based on React and [Squire](https://github.com/neilj/Squire).
 
 ## Installation
 
