@@ -1,3 +1,10 @@
+/**
+ * gatsby-node.js
+ *
+ * We use this file to hook into gatsby processes.
+ * Here we inject our own tyscript loader.
+ */
+
 const path = require("path");
 
 const rootDir = path.resolve(__dirname, "../");
