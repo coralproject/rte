@@ -59,15 +59,10 @@ interface PropTypes {
   /** Only allow pasting text */
   pasteTextOnly?: boolean;
   /**
-   * If true, don't sanitize when `value` is applied.
+   * Sanitize when `value` is applied. Defaults to `true`.
    * Important: No sanitization will take place unless `sanitizeToDOMFragment` is set.
    */
-  noSanitizeValue?: boolean;
-  /**
-   * If true, don't sanitize when inserting HTML including paste. Not recommended!
-   * Important: No sanitization will take place unless `sanitizeToDOMFragment` is set.
-   */
-  noSanitizeInsert?: boolean;
+  sanitizeValue?: boolean;
   /**
    * Function to call when sanitizing HTML, this will also allow pasting HTML
    * if not disabled by `pasteTextOnly`.
@@ -104,7 +99,8 @@ class RTE extends React.Component<PropTypes, State> {
     toolbarClassNameDisabled: "",
     placeholderClassName: "",
     placeholderClassNameDisabled: "",
-    toolbarPosition: "top"
+    toolbarPosition: "top",
+    sanitizeValue: true
   };
 
   /// Ref to squire node.
@@ -138,8 +134,9 @@ class RTE extends React.Component<PropTypes, State> {
 
   private initSquire = () => {
     this.squire = new Squire(this.contentEditableRef!, {
-      isInsertedHTMLSanitized: !this.props.noSanitizeInsert,
-      isSetHTMLSanitized: !this.props.noSanitizeValue,
+      isInsertedHTMLSanitized: Boolean(this.props.sanitizeToDOMFragment),
+      isSetHTMLSanitized:
+        Boolean(this.props.sanitizeToDOMFragment) && this.props.sanitizeValue,
       sanitizeToDOMFragment: this.props.sanitizeToDOMFragment
     });
     this.squire.addEventListener("pathChange", this.handlePathChange);
