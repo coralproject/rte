@@ -18,42 +18,68 @@ export interface Feature {
 }
 
 interface PropTypes {
+  /** features is an array RTE features to be included */
   features?: ReactElement<any>[];
-  inputId?: string;
+  /** inputID is the id attached to the contenteditable field */
+  inputID?: string;
+  /** onChange is called whenenver the `html` value has changed */
   onChange?: (html: string) => void;
+  /** disabled lets you turn on/off the RTE */
   disabled?: boolean;
+  /** className added to the root */
   className?: string;
+  /** className added to the root when disabled */
   classNameDisabled?: string;
+  /** className added to the html content */
   contentClassName?: string;
+  /** className added to the html content when disabled */
   contentClassNameDisabled?: string;
+  /** className added to the html content container */
   contentContainerClassName?: string;
+  /** className added to the html content container when disabled */
   contentContainerClassNameDisabled?: string;
+  /** className added to the toolbar */
   toolbarClassName?: string;
+  /** className added to the toolbar when disabled */
   toolbarClassNameDisabled?: string;
+  /** className added to the placeholder */
   placeholderClassName?: string;
+  /** className added to the placeholder when disabled */
   placeholderClassNameDisabled?: string;
+  /** placeholder to show when RTE is empty */
   placeholder?: string;
+  /** current html value */
   value?: string;
+  /** toolbarPosition lets you switch the toolbar to top/bottom */
   toolbarPosition?: "top" | "bottom";
+  /** onFocus is called whenenver the RTE receives focus */
   onFocus?: EventHandler<FocusEvent>;
+  /** onFocus is called whenenver the RTE looses focus */
   onBlur?: EventHandler<FocusEvent>;
-
   /** Only allow pasting text */
   pasteTextOnly?: boolean;
-
   /**
    * If true, don't sanitize when `value` is applied.
    * Important: No sanitization will take place unless `sanitizeToDOMFragment` is set.
    */
   noSanitizeValue?: boolean;
-
   /**
    * If true, don't sanitize when inserting HTML including paste. Not recommended!
    * Important: No sanitization will take place unless `sanitizeToDOMFragment` is set.
    */
   noSanitizeInsert?: boolean;
-
-  /** Function to call when sanitizing HTML */
+  /**
+   * Function to call when sanitizing HTML.
+   *
+   * Can be used with DOMPurify:
+   * ```
+   * const sanitizeToDOMFragment = (html: string) => {
+   *   if (!html) {
+   *     return document.createDocumentFragment()
+   *   }
+   *   return purify.sanitize(html, { RETURN_DOM_FRAGMENT: true });
+   * };
+   */
   sanitizeToDOMFragment?: (
     html: string,
     isPaste: boolean,
@@ -319,12 +345,12 @@ class RTE extends React.Component<PropTypes, State> {
   }
 
   public render() {
-    const { value, placeholder, inputId, toolbarPosition } = this.props;
+    const { value, placeholder, inputID, toolbarPosition } = this.props;
 
     const classNames = this.getClassNames();
 
     const contentEditableProps: HTMLAttributes<HTMLDivElement> = {
-      id: inputId,
+      id: inputID,
       className: classNames.content
     };
 
