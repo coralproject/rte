@@ -57,5 +57,7 @@ npm run build
 1. Make sure you've updated the version in `package.json`
 2. Cut a new release
 3. Publish the update to NPM
+
       `npm login`
+      
       `npm publish`
