@@ -63,7 +63,7 @@ interface PropTypes {
   /** onFocus is called whenenver the RTE looses focus */
   onBlur?: EventHandler<FocusEvent>;
 
-  /** onFocus is called whenenver the RTE looses focus */
+  /** onWillPaste is called whenenver the RTE receives paste event */
   onWillPaste?: (event: PasteEvent) => void;
   /** Only allow pasting text */
   pasteTextOnly?: boolean;
