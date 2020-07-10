@@ -17,6 +17,12 @@ export interface Feature {
   onContentEditableBlur?: () => void;
 }
 
+interface PasteEvent {
+  fragment: DocumentFragment;
+  preventDefault: () => void;
+  defaultPrevented: boolean;
+}
+
 interface PropTypes {
   /** features is an array of RTE features to be included */
   features?: ReactElement<any>[];
@@ -56,6 +62,9 @@ interface PropTypes {
   onFocus?: EventHandler<FocusEvent>;
   /** onFocus is called whenenver the RTE looses focus */
   onBlur?: EventHandler<FocusEvent>;
+
+  /** onWillPaste is called whenenver the RTE receives paste event */
+  onWillPaste?: (event: PasteEvent) => void;
   /** Only allow pasting text */
   pasteTextOnly?: boolean;
   /**
@@ -141,9 +150,7 @@ class RTE extends React.Component<PropTypes, State> {
     });
     this.squire.addEventListener("pathChange", this.handlePathChange);
     this.squire.addEventListener("input", this.handleChange);
-    if (this.props.pasteTextOnly || !this.props.sanitizeToDOMFragment) {
-      this.squire.addEventListener("willPaste", this.handlePasteTextOnly);
-    }
+    this.squire.addEventListener("willPaste", this.handlePasteText);
     this.squire.addEventListener("focus", this.handleContentEditableFocus);
     this.squire.addEventListener("blur", this.handleContentEditableBlur);
 
@@ -281,6 +288,15 @@ class RTE extends React.Component<PropTypes, State> {
         b.onContentEditableBlur();
       }
     });
+  };
+
+  private handlePasteText = (event: PasteEvent) => {
+    if (this.props.pasteTextOnly || !this.props.sanitizeToDOMFragment) {
+      this.handlePasteTextOnly(event);
+    }
+    if (this.props.onWillPaste) {
+      this.props.onWillPaste(event);
+    }
   };
 
   // We intercept pasting, so that we
