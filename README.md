@@ -40,6 +40,7 @@ const sanitizeToDOMFragment = html => {
 />;
 ```
 
+
 ## Development
 
 ```sh
@@ -51,3 +52,10 @@ npm run dev
 ```sh
 npm run build
 ```
+## Publish new version to NPM
+
+1. Make sure you've updated the version in `package.json`
+2. Cut a new release
+3. Publish the update to NPM
+      `npm login`
+      `npm publish`
