@@ -1,6 +1,6 @@
 {
   "name": "@coralproject/rte",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Coral Rich Text Editor",
   "author": "The Coral Project Team <coral@mozillafoundation.org>",
   "license": "Apache-2.0",
