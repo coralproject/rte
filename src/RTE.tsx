@@ -1,15 +1,18 @@
 import cn from "classnames";
 import PropTypes from "prop-types";
-import Squire from "squire-rte";
 import React, {
   EventHandler,
   FocusEvent,
   ReactElement,
   HTMLAttributes,
 } from "react";
+import Squire from "squire-rte";
+
 import Toolbar from "./components/Toolbar";
-import styles from "./RTE.module.css";
 import { getBrowserInfo } from "./lib/browserInfo";
+import getHTMLElement from "./lib/getHTMLElement";
+import syncLinkHrefWithContent from "./lib/syncLinkHrefWithContent";
+import styles from "./RTE.module.css";
 
 export interface Feature {
   onPathChange?: () => void;
@@ -67,6 +70,10 @@ interface PropTypes {
   onWillPaste?: (event: PasteEvent) => void;
   /** Only allow pasting text */
   pasteTextOnly?: boolean;
+  /** Regular expression used to automatically mark up links or null to disable */
+  linkRegExp?: RegExp | null;
+  /** Enforces link content to match href target */
+  linkContentMatchHref?: boolean;
   /**
    * Sanitize when `value` is applied. Defaults to `true`.
    * Important: No sanitization will take place unless `sanitizeToDOMFragment` is set.
@@ -110,6 +117,7 @@ class RTE extends React.Component<PropTypes, State> {
     placeholderClassNameDisabled: "",
     toolbarPosition: "top",
     sanitizeValue: true,
+    linkContentMatchHref: true,
   };
 
   /// Ref to squire node.
@@ -147,6 +155,7 @@ class RTE extends React.Component<PropTypes, State> {
       isSetHTMLSanitized:
         Boolean(this.props.sanitizeToDOMFragment) && this.props.sanitizeValue,
       sanitizeToDOMFragment: this.props.sanitizeToDOMFragment,
+      addLinks: false,
     });
     this.squire.addEventListener("pathChange", this.handlePathChange);
     this.squire.addEventListener("input", this.handleChange);
@@ -225,6 +234,14 @@ class RTE extends React.Component<PropTypes, State> {
   }
 
   private handleChange = () => {
+    if (this.props.linkContentMatchHref) {
+      // Forces link contents to match their href target.
+      this.squire.modifyDocument(() => {
+        syncLinkHrefWithContent(
+          getHTMLElement(this.squire.getSelection().commonAncestorContainer)
+        );
+      });
+    }
     if (this.props.onChange) {
       this.props.onChange(this.squire.getHTML());
     }
