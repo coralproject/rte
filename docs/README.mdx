@@ -3,10 +3,8 @@ name: README
 route: "/"
 ---
 
-import { Playground } from "docz";
+import { Playground } from "@coralproject/mdx-book";
 import { useState } from "react";
-
-import "./ssrMocks";
 
 import {
   CoralRTE,
@@ -17,11 +15,11 @@ import {
   OrderedList,
   UnorderedList,
   Spoiler
-} from "./src";
+} from "../src";
 
 import "./README.css";
 
-# Introduction
+# Coral Rich-Text-Editor
 
 CoralRTE is a lightweight and extensible Rich Text Editor based on React.
 
@@ -55,7 +53,7 @@ npm install @coralproject/rte --save-dev
   }}
 </Playground>
 
-#### Toolbar position at the bottom
+### Toolbar position at the bottom
 
 <Playground>
   <CoralRTE
