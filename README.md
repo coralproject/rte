@@ -2,6 +2,8 @@
 
 Coral RTE is a lightweight and extensible Rich Text Editor based on React and [Squire](https://github.com/neilj/Squire).
 
+[Demo](https://coralproject-rte.netlify.app/)
+
 ## Installation
 
 ```bash
@@ -17,7 +19,7 @@ import createDOMPurify from "dompurify";
 // See https://github.com/cure53/DOMPurify
 const DOMPurify = createDOMPurify(window);
 
-const sanitizeToDOMFragment = html => {
+const sanitizeToDOMFragment = (html) => {
   if (!html) {
     return document.createDocumentFragment();
   }
@@ -30,7 +32,7 @@ const sanitizeToDOMFragment = html => {
   contentClassName="coral-rte-content"
   placeholderClassName="coral-rte-placeholder"
   toolbarClassName="coral-rte-toolbar"
-  onChange={html => setValue(html)}
+  onChange={(html) => setValue(html)}
   value={value}
   disabled={disabled}
   placeholder={"Enter some content"}
@@ -39,7 +41,6 @@ const sanitizeToDOMFragment = html => {
   sanitizeToDOMFragment={sanitizeToDOMFragment}
 />;
 ```
-
 
 ## Development
 
@@ -52,6 +53,7 @@ npm run dev
 ```sh
 npm run build
 ```
+
 ## Publish new version to NPM
 
 1. Make sure you've updated the version in `package.json`
@@ -59,6 +61,6 @@ npm run build
 3. Cut a new release
 4. Publish the update to NPM
 
-      `npm login`
-      
-      `npm publish`
+   `npm login`
+
+   `npm publish`
