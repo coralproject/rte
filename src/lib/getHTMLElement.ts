@@ -1,4 +1,3 @@
-
 /**
  * Traverse ancestors until we find an HTMLElement.
  */
