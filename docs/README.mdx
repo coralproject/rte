@@ -9,7 +9,7 @@ import {
   Strike,
   OrderedList,
   UnorderedList,
-  Spoiler
+  Spoiler,
 } from "../src";
 
 import "./README.css";
@@ -17,6 +17,8 @@ import "./README.css";
 # Coral Rich-Text-Editor
 
 CoralRTE is a lightweight and extensible Rich Text Editor based on React.
+
+[GitHub](https://github.com/coralproject/rte)
 
 ## Installation
 
@@ -32,7 +34,7 @@ npm install @coralproject/rte --save-dev
     return (
       <CoralRTE
         value={value}
-        onChange={html => setValue(html)}
+        onChange={(html) => setValue(html)}
         placeholder="Type something"
         features={[
           <Bold />,
@@ -41,7 +43,7 @@ npm install @coralproject/rte --save-dev
           <Strike />,
           <OrderedList />,
           <UnorderedList />,
-          <Spoiler />
+          <Spoiler />,
         ]}
       />
     );
@@ -60,7 +62,7 @@ npm install @coralproject/rte --save-dev
       <Strike />,
       <OrderedList />,
       <UnorderedList />,
-      <Spoiler />
+      <Spoiler />,
     ]}
   />
 </Playground>
