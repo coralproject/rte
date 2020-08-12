@@ -8,7 +8,7 @@ export interface ToolbarPropTypes {
 }
 
 class Toolbar extends React.Component<ToolbarPropTypes> {
-  public render() {
+  public render(): React.ReactNode {
     const { className, ...rest } = this.props;
     return <div className={cn(className, styles.toolbar)} {...rest} />;
   }

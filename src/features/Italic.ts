@@ -16,7 +16,7 @@ function isActive(squire: Squire) {
 function isDisabled(squire: Squire) {
   // Check if a block node already enforces this styling, if so
   // disable this feature.
-  let blockOverwrites: boolean = false;
+  let blockOverwrites = false;
   squire.forEachBlock((n: Node) => {
     if (
       window.getComputedStyle(n as Element).getPropertyValue("font-style") ===
@@ -34,13 +34,13 @@ function isDisabled(squire: Squire) {
 const Italic = createToggle(execCommand, {
   isActive,
   isDisabled,
-  shortcuts: ctrlKey => ({
-    [ctrlKey + "i"]: execCommand
-  })
+  shortcuts: (ctrlKey) => ({
+    [ctrlKey + "i"]: execCommand,
+  }),
 });
 
 Italic.defaultProps = {
-  children: "Italic"
+  children: "Italic",
 };
 
 export default Italic;

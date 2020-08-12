@@ -1,4 +1,5 @@
 node_modules
+dist
 /cjs
 /lib
-dist
+*.d.ts

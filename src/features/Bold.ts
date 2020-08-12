@@ -16,13 +16,13 @@ function isActive(squire: Squire) {
 
 const Bold = createToggle(execCommand, {
   isActive,
-  shortcuts: ctrlKey => ({
-    [ctrlKey + "b"]: execCommand
-  })
+  shortcuts: (ctrlKey) => ({
+    [ctrlKey + "b"]: execCommand,
+  }),
 });
 
 Bold.defaultProps = {
-  children: "Bold"
+  children: "Bold",
 };
 
 export default Bold;
