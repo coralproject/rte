@@ -1,15 +1,16 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 var HtmlWebpackPlugin = require("html-webpack-plugin");
 var path = require("path");
 
 module.exports = {
   mode: process.env.NODE_ENV === "production" ? "production" : "development",
-  entry: "./main",
+  entry: ["core-js/stable", "regenerator-runtime/runtime", "./main"],
   resolve: {
-    extensions: [".js", ".ts", ".tsx"]
+    extensions: [".js", ".ts", ".tsx"],
   },
   output: {
     filename: "[name].bundle.js",
-    path: path.resolve(__dirname, "dist")
+    path: path.resolve(__dirname, "dist"),
   },
   module: {
     rules: [
@@ -23,32 +24,38 @@ module.exports = {
                 loader: require.resolve("css-loader"),
                 options: {
                   modules: {
-                    localIdentName: "[name]-[local]-[contenthash]"
-                  }
-                }
-              }
+                    localIdentName: "[name]-[local]-[contenthash]",
+                  },
+                },
+              },
             ],
-            include: /\.module\.css$/
+            include: /\.module\.css$/,
           },
           {
-            use: ["css-loader"]
-          }
-        ]
+            use: ["css-loader"],
+          },
+        ],
       },
       {
-        test: /\.(j|t)sx?/,
-        use: ["babel-loader"]
+        test: /\.tsx?/,
+        use: ["babel-loader"],
+      },
+      {
+        test: /\.js/,
+        include: /node_modules\//,
+        exclude: /node_modules\/(@babel|babel|core-js|regenerator-runtime)/,
+        use: ["babel-loader"],
       },
       {
         test: /\.mdx?$/,
-        use: ["babel-loader", "@coralproject/mdx-book/loader"]
-      }
-    ]
+        use: ["babel-loader", "@coralproject/mdx-book/loader"],
+      },
+    ],
   },
   devServer: {
     publicPath: "/",
     contentBase: "./public",
-    hot: true
+    hot: true,
   },
-  plugins: [new HtmlWebpackPlugin()]
+  plugins: [new HtmlWebpackPlugin()],
 };
