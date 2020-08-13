@@ -15,6 +15,11 @@
     "noErrorTruncation": true,
     "lib": ["dom", "es7"]
   },
-  "include": ["./src/**/*.ts", "./src/**/*.d.ts", "./src/**/*.js"],
+  "include": [
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "./src/**/*.d.ts",
+    "./src/**/*.js"
+  ],
   "exclude": ["node_modules"]
 }

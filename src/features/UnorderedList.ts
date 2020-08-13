@@ -17,7 +17,7 @@ function isActive(squire: Squire) {
 const UnorderedList = createToggle(execCommand, { isActive });
 
 UnorderedList.defaultProps = {
-  children: "Unordered List"
+  children: "Unordered List",
 };
 
 export default UnorderedList;

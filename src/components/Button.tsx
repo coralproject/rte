@@ -12,7 +12,7 @@ export interface ButtonPropTypes
 }
 
 class Button extends React.Component<ButtonPropTypes> {
-  public render() {
+  public render(): React.ReactNode {
     const {
       className,
       children,
@@ -24,7 +24,7 @@ class Button extends React.Component<ButtonPropTypes> {
       <button
         type="button"
         className={cn(className, styles.button, {
-          [cn(styles.active, activeClassName)]: active
+          [cn(styles.active, activeClassName)]: active,
         })}
         {...rest}
       >

@@ -5,7 +5,7 @@ import React, {
   EventHandler,
   FocusEvent,
   ReactElement,
-  HTMLAttributes
+  HTMLAttributes,
 } from "react";
 import Toolbar from "./components/Toolbar";
 import styles from "./RTE.module.css";
@@ -109,7 +109,7 @@ class RTE extends React.Component<PropTypes, State> {
     placeholderClassName: "",
     placeholderClassNameDisabled: "",
     toolbarPosition: "top",
-    sanitizeValue: true
+    sanitizeValue: true,
   };
 
   /// Ref to squire node.
@@ -146,7 +146,7 @@ class RTE extends React.Component<PropTypes, State> {
       isInsertedHTMLSanitized: Boolean(this.props.sanitizeToDOMFragment),
       isSetHTMLSanitized:
         Boolean(this.props.sanitizeToDOMFragment) && this.props.sanitizeValue,
-      sanitizeToDOMFragment: this.props.sanitizeToDOMFragment
+      sanitizeToDOMFragment: this.props.sanitizeToDOMFragment,
     });
     this.squire.addEventListener("pathChange", this.handlePathChange);
     this.squire.addEventListener("input", this.handleChange);
@@ -166,8 +166,8 @@ class RTE extends React.Component<PropTypes, State> {
       this.ctrlKey + "shift-9",
       this.ctrlKey + "shift-[",
       this.ctrlKey + "shift-]",
-      this.ctrlKey + "shift-d"
-    ].forEach(key => this.squire.setKeyHandler(key, null));
+      this.ctrlKey + "shift-d",
+    ].forEach((key) => this.squire.setKeyHandler(key, null));
 
     // Set current value.
     if (this.props.value) {
@@ -195,7 +195,7 @@ class RTE extends React.Component<PropTypes, State> {
 
   /** iterate through each feature */
   private forEachFeature(callback: (instance: Feature) => void) {
-    Object.keys(this.featuresRef).map(k => {
+    Object.keys(this.featuresRef).map((k) => {
       callback(this.featuresRef[k]);
     });
   }
@@ -233,7 +233,7 @@ class RTE extends React.Component<PropTypes, State> {
   private handlePathChange = () => {
     // Let features know path has changed, so they
     // can update.
-    this.forEachFeature(b => {
+    this.forEachFeature((b) => {
       if (b.onPathChange) {
         b.onPathChange();
       }
@@ -275,7 +275,7 @@ class RTE extends React.Component<PropTypes, State> {
   };
 
   private handleContentEditableFocus = (e: FocusEvent) => {
-    this.forEachFeature(b => {
+    this.forEachFeature((b) => {
       if (b.onContentEditableFocus) {
         b.onContentEditableFocus();
       }
@@ -283,7 +283,7 @@ class RTE extends React.Component<PropTypes, State> {
   };
 
   private handleContentEditableBlur = (e: FocusEvent) => {
-    this.forEachFeature(b => {
+    this.forEachFeature((b) => {
       if (b.onContentEditableBlur) {
         b.onContentEditableBlur();
       }
@@ -307,6 +307,7 @@ class RTE extends React.Component<PropTypes, State> {
     defaultPrevented: boolean;
   }) => {
     // Remove html.
+    // eslint-disable-next-line no-self-assign
     event.fragment.textContent = event.fragment.textContent;
   };
 
@@ -322,7 +323,7 @@ class RTE extends React.Component<PropTypes, State> {
           squire: this.squire,
           ctrlKey: this.ctrlKey,
           key: b.key || i,
-          ref: this.createFeatureRefHandler(b.key || i)
+          ref: this.createFeatureRefHandler(b.key || i),
         });
       })
     );
@@ -335,26 +336,26 @@ class RTE extends React.Component<PropTypes, State> {
         [this.props.toolbarClassNameDisabled!]: disabled,
         [styles.toolbarDisabled]: disabled,
         [styles.toolbarTop]: toolbarPosition === "top",
-        [styles.toolbarBottom]: toolbarPosition === "bottom"
+        [styles.toolbarBottom]: toolbarPosition === "bottom",
       }),
       contentContainer: cn(
         styles.contentEditableContainer,
         this.props.contentContainerClassName,
         {
           [this.props.contentContainerClassNameDisabled!]: disabled,
-          [styles.contentEditableContainerDisabled]: disabled
+          [styles.contentEditableContainerDisabled]: disabled,
         }
       ),
       content: cn(styles.contentEditable, this.props.contentClassName, {
         [this.props.contentClassNameDisabled!]: disabled,
-        [styles.contentEditableDisabled]: disabled
+        [styles.contentEditableDisabled]: disabled,
       }),
       root: cn(styles.root, this.props.className, {
-        [this.props.classNameDisabled!]: disabled
+        [this.props.classNameDisabled!]: disabled,
       }),
       placeholder: cn(styles.placeholder, this.props.placeholderClassName, {
-        [this.props.placeholderClassNameDisabled!]: disabled
-      })
+        [this.props.placeholderClassNameDisabled!]: disabled,
+      }),
     };
   }
 
@@ -365,7 +366,7 @@ class RTE extends React.Component<PropTypes, State> {
 
     const contentEditableProps: HTMLAttributes<HTMLDivElement> = {
       id: inputID,
-      className: classNames.content
+      className: classNames.content,
     };
 
     if (placeholder) {

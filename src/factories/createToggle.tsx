@@ -60,7 +60,7 @@ function createToggle<AdditionalProps>(
   {
     isActive = () => false,
     isDisabled = () => false,
-    shortcuts
+    shortcuts,
   }: CreateToggleOptions<AdditionalProps> = {}
 ): ComponentType<TogglePropTypes & AdditionalProps> {
   class Toggle
@@ -71,7 +71,7 @@ function createToggle<AdditionalProps>(
     implements Feature {
     public state = {
       active: false,
-      disabled: false
+      disabled: false,
     };
 
     private unmounted = false;
@@ -91,7 +91,7 @@ function createToggle<AdditionalProps>(
       // Register shortcuts to squire-rte.
       if (shortcuts) {
         const resolved = shortcuts(this.props.ctrlKey);
-        Object.keys(resolved).forEach(key => {
+        Object.keys(resolved).forEach((key) => {
           this.props.squire.setKeyHandler(key, (squire, event, range) => {
             event.preventDefault();
             resolved[key](squire, event, range, this.props);
@@ -136,13 +136,13 @@ function createToggle<AdditionalProps>(
           return;
         }
         if (this.state.active !== this.isActive()) {
-          this.setState(state => ({
-            active: !state.active
+          this.setState((state) => ({
+            active: !state.active,
           }));
         }
         if (this.state.disabled !== this.isDisabled()) {
-          this.setState(state => ({
-            disabled: !state.disabled
+          this.setState((state) => ({
+            disabled: !state.disabled,
           }));
         }
       });

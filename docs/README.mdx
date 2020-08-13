@@ -1,12 +1,5 @@
----
-name: README
-route: "/"
----
-
-import { Playground } from "docz";
+import { Playground } from "@coralproject/mdx-book";
 import { useState } from "react";
-
-import "./ssrMocks";
 
 import {
   CoralRTE,
@@ -16,14 +9,16 @@ import {
   Strike,
   OrderedList,
   UnorderedList,
-  Spoiler
-} from "./src";
+  Spoiler,
+} from "../src";
 
 import "./README.css";
 
-# Introduction
+# Coral Rich-Text-Editor
 
 CoralRTE is a lightweight and extensible Rich Text Editor based on React.
+
+[GitHub](https://github.com/coralproject/rte)
 
 ## Installation
 
@@ -39,7 +34,7 @@ npm install @coralproject/rte --save-dev
     return (
       <CoralRTE
         value={value}
-        onChange={html => setValue(html)}
+        onChange={(html) => setValue(html)}
         placeholder="Type something"
         features={[
           <Bold />,
@@ -48,14 +43,14 @@ npm install @coralproject/rte --save-dev
           <Strike />,
           <OrderedList />,
           <UnorderedList />,
-          <Spoiler />
+          <Spoiler />,
         ]}
       />
     );
   }}
 </Playground>
 
-#### Toolbar position at the bottom
+### Toolbar position at the bottom
 
 <Playground>
   <CoralRTE
@@ -67,7 +62,7 @@ npm install @coralproject/rte --save-dev
       <Strike />,
       <OrderedList />,
       <UnorderedList />,
-      <Spoiler />
+      <Spoiler />,
     ]}
   />
 </Playground>

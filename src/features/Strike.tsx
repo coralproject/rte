@@ -19,7 +19,7 @@ function isActive(squire: Squire) {
 function isDisabled(squire: Squire) {
   // Check if a block node already enforces this styling, if so
   // disable this feature.
-  let blockOverwrites: boolean = false;
+  let blockOverwrites = false;
   squire.forEachBlock((n: Node) => {
     if (
       window
@@ -38,13 +38,13 @@ function isDisabled(squire: Squire) {
 const Strike = createToggle(execCommand, {
   isActive,
   isDisabled,
-  shortcuts: ctrlKey => ({
-    [ctrlKey + "s"]: execCommand
-  })
+  shortcuts: (ctrlKey) => ({
+    [ctrlKey + "s"]: execCommand,
+  }),
 });
 
 Strike.defaultProps = {
-  children: <s>S</s>
+  children: <s>S</s>,
 };
 
 export default Strike;

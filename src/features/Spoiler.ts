@@ -22,12 +22,12 @@ function isActive(squire: Squire, props: Props) {
 }
 
 const Spoiler = createToggle<Props>(execCommand, {
-  isActive
+  isActive,
 });
 
 Spoiler.defaultProps = {
   children: "Spoiler",
-  spoilerClassName: "coral-rte-spoiler"
+  spoilerClassName: "coral-rte-spoiler",
 };
 
 export default Spoiler;

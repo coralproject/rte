@@ -1,0 +1,41 @@
+@import url("https://fonts.googleapis.com/css2?family=Inconsolata&family=Nunito:wght@400;600&display=swap");
+
+body {
+  font-family: "Nunito", sans-serif;
+  padding: 10px 40px;
+  background: #eef6f9;
+}
+
+h1 {
+  margin-top: 0.7em;
+  margin-bottom: 0.4em;
+}
+
+h2 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+h3 {
+  margin-top: 1.8em;
+  margin-bottom: 0.7em;
+}
+
+h1 + p,
+h2 + p,
+h3 + p,
+h4 + p,
+h5 + p,
+h6 + p {
+  margin-top: 0px;
+}
+
+pre {
+  padding: 8px 12px;
+}
+
+.coral-rte-spoiler {
+  background-color: black;
+  color: white;
+  padding: 0 2px;
+}

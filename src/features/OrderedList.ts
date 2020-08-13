@@ -17,7 +17,7 @@ function isActive(squire: Squire) {
 const OrderedList = createToggle(execCommand, { isActive });
 
 OrderedList.defaultProps = {
-  children: "Ordered List"
+  children: "Ordered List",
 };
 
 export default OrderedList;

@@ -17,7 +17,7 @@ function isActive(squire: Squire) {
 const Blockquote = createToggle(execCommand, { isActive });
 
 Blockquote.defaultProps = {
-  children: "Blockquote"
+  children: "Blockquote",
 };
 
 export default Blockquote;
