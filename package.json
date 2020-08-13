@@ -66,7 +66,7 @@
   },
   "dependencies": {
     "classnames": "^2.2.6",
-    "squire-rte": "^1.9.0"
+    "squire-rte": "^1.10.2"
   },
   "browsers": [
     ">1%",

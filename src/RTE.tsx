@@ -155,7 +155,7 @@ class RTE extends React.Component<PropTypes, State> {
       isSetHTMLSanitized:
         Boolean(this.props.sanitizeToDOMFragment) && this.props.sanitizeValue,
       sanitizeToDOMFragment: this.props.sanitizeToDOMFragment,
-      addLinks: false,
+      addLinks: this.props.linkRegExp !== null,
     });
     this.squire.addEventListener("pathChange", this.handlePathChange);
     this.squire.addEventListener("input", this.handleChange);
