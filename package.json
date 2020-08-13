@@ -14,12 +14,12 @@
   "typings": "./lib/index.d.ts",
   "scripts": {
     "build": "npm-run-all --parallel build:*",
-    "build:lib": "rm -rf ./lib && NODE_ENV=production tsc --declaration --sourceMap --noEmit false --outDir lib --module es6 && copyfiles -u 1 ./src/**/*.css lib",
-    "build:cjs": "rm -rf ./cjs && NODE_ENV=production tsc --declaration --sourceMap --noEmit false --outDir cjs --module commonjs && copyfiles -u 1 ./src/**/*.css cjs",
+    "build:lib": "rm -rf ./lib && NODE_ENV=production tsc --declaration --sourceMap --noEmit false --outDir lib --module es6 && copyfiles -u 1 './src/**/*.css' lib",
+    "build:cjs": "rm -rf ./cjs && NODE_ENV=production tsc --declaration --sourceMap --noEmit false --outDir cjs --module commonjs && copyfiles -u 1 './src/**/*.css' cjs",
     "build:docs": "rm -rf ./docs/dist && webpack --config docs/webpack.config.js --context docs/",
     "dev": "webpack-dev-server --config docs/webpack.config.js --context docs/",
     "lint": "npm-run-all --parallel lint:*",
-    "lint:eslint": "eslint ./src/*.{ts,tsx} ./src/**/*.{ts,tsx} ./docs/**/*.tsx ./docs/*.tsx",
+    "lint:eslint": "eslint './src/**/*.{ts,tsx}' './docs/**/*.tsx'",
     "lint:tsc": "tsc --noEmit",
     "release": "npm version -m '@coralproject/rte release %s'"
   },
