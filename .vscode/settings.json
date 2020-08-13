@@ -14,10 +14,7 @@
   "search.exclude": {
     "package-lock.json": true
   },
-  "tslint.autoFixOnSave": true,
-  "tslint.jsEnable": true,
   "typescript.tsdk": "node_modules/typescript/lib",
-
   "importSorter.importStringConfiguration.quoteMark": "double",
   "importSorter.importStringConfiguration.maximumNumberOfImportExpressionsPerLine.count": 80,
   "importSorter.sortConfiguration.customOrderingRules.rules": [
