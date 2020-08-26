@@ -46,7 +46,4 @@
   .button:hover {
     background-color: transparent;
   }
-  .button.active {
-    background-color: #ddd;
-  }
 }
