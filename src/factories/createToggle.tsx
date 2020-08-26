@@ -17,6 +17,11 @@ export interface InjectedProps {
   squire: Squire;
   /** ctrlKey dependend on the OS. Used to create shortcuts. */
   ctrlKey: string;
+  /** Button component */
+  ButtonComponent: React.ComponentType<
+    React.ButtonHTMLAttributes<HTMLButtonElement>
+  >;
+  disabled?: boolean;
 }
 
 interface State {
@@ -149,7 +154,13 @@ function createToggle<AdditionalProps>(
     };
 
     public render() {
-      const { className, title, children, disabled } = this.props;
+      const {
+        className,
+        title,
+        children,
+        disabled,
+        ButtonComponent,
+      } = this.props;
       return (
         <Button
           className={className}
@@ -157,6 +168,7 @@ function createToggle<AdditionalProps>(
           onClick={this.handleClick}
           active={this.state.active}
           disabled={disabled || this.state.disabled}
+          component={ButtonComponent}
         >
           {children}
         </Button>

@@ -6,30 +6,24 @@ import styles from "./Button.module.css";
 export interface ButtonPropTypes
   extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
-  activeClassName?: string;
   children?: React.ReactNode;
   active?: boolean;
+  component?: React.ComponentType<any>;
 }
 
 class Button extends React.Component<ButtonPropTypes> {
   public render(): React.ReactNode {
-    const {
-      className,
-      children,
-      active,
-      activeClassName,
-      ...rest
-    } = this.props;
+    const { className, children, active, component, ...rest } = this.props;
+    const Component = component || "button";
     return (
-      <button
+      <Component
         type="button"
-        className={cn(className, styles.button, {
-          [cn(styles.active, activeClassName)]: active,
-        })}
+        className={cn(className, { [styles.button]: !component })}
+        aria-pressed={active}
         {...rest}
       >
         {children}
-      </button>
+      </Component>
     );
   }
 }

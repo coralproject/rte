@@ -13,6 +13,7 @@ import { getBrowserInfo } from "./lib/browserInfo";
 import getHTMLElement from "./lib/getHTMLElement";
 import syncLinkHrefWithContent from "./lib/syncLinkHrefWithContent";
 import styles from "./RTE.module.css";
+import { InjectedProps } from "./factories/createToggle";
 
 export interface Feature {
   onPathChange?: () => void;
@@ -97,6 +98,12 @@ interface PropTypes {
     isPaste: boolean,
     self: Squire
   ) => DocumentFragment;
+
+  /**
+   * ButtonComponent is injected to RTE Feature Components
+   * in order to replace the used <button />.
+   */
+  ButtonComponent?: InjectedProps["ButtonComponent"];
 }
 
 interface State {
@@ -335,13 +342,17 @@ class RTE extends React.Component<PropTypes, State> {
     return (
       this.props.features &&
       this.props.features.map((b, i) => {
-        return React.cloneElement(b, {
-          disabled: this.props.disabled,
-          squire: this.squire,
-          ctrlKey: this.ctrlKey,
-          key: b.key || i,
-          ref: this.createFeatureRefHandler(b.key || i),
-        });
+        return React.cloneElement<InjectedProps & { ref: React.Ref<Feature> }>(
+          b,
+          {
+            disabled: this.props.disabled,
+            squire: this.squire,
+            ctrlKey: this.ctrlKey,
+            key: b.key || i,
+            ButtonComponent: this.props.ButtonComponent,
+            ref: this.createFeatureRefHandler(b.key || i),
+          }
+        );
       })
     );
   }

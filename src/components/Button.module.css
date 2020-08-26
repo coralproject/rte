@@ -32,7 +32,7 @@
   background-color: #eae8e8;
 }
 
-.button.active {
+.button[aria-pressed=true] {
   background-color: #ddd;
 }
 
