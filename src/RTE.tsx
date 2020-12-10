@@ -5,6 +5,7 @@ import React, {
   FocusEvent,
   ReactElement,
   HTMLAttributes,
+  KeyboardEventHandler,
 } from "react";
 import Squire from "squire-rte";
 
@@ -66,6 +67,8 @@ interface PropTypes {
   onFocus?: EventHandler<FocusEvent>;
   /** onFocus is called whenenver the RTE looses focus */
   onBlur?: EventHandler<FocusEvent>;
+  /** onKeyPress is called whenever a key is pressed on the RTE */
+  onKeyPress?: KeyboardEventHandler<Element>;
 
   /** onWillPaste is called whenenver the RTE receives paste event */
   onWillPaste?: (event: PasteEvent) => void;
@@ -169,6 +172,7 @@ class RTE extends React.Component<PropTypes, State> {
     this.squire.addEventListener("willPaste", this.handlePasteText);
     this.squire.addEventListener("focus", this.handleContentEditableFocus);
     this.squire.addEventListener("blur", this.handleContentEditableBlur);
+    this.squire.addEventListener("keypress", this.handleKeyPress);
 
     // Reset shortcuts. We add shortcuts through the added features.
     [
@@ -333,6 +337,14 @@ class RTE extends React.Component<PropTypes, State> {
     // Remove html.
     // eslint-disable-next-line no-self-assign
     event.fragment.textContent = event.fragment.textContent;
+  };
+
+  private handleKeyPress = (event: React.KeyboardEvent<Element>) => {
+    if (!this.props.onKeyPress) {
+      return;
+    }
+
+    this.props.onKeyPress(event);
   };
 
   private renderFeatures() {
