@@ -1,70 +1,74 @@
-# job_environment will setup the environment for any job being executed.
-job_environment: &job_environment
-  NODE_ENV: test
-
-# job_defaults applies all the defaults for each job.
-job_defaults: &job_defaults
-  working_directory: ~/coralproject/rte
-  docker:
-    - image: circleci/node:12
-  environment:
-    <<: *job_environment
-
-version: 2
+version: 2.1
+orbs:
+  node: circleci/node@4.1.0
+executors:
+  default:
+    docker:
+      - image: cimg/node:13.11
+    working_directory: ~/repo
 jobs:
-  # npm_dependencies will install the dependencies used by all other steps.
-  npm_dependencies:
-    <<: *job_defaults
+  dependencies:
+    executor: default
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/coralproject/rte
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
-      - run:
-          name: Update NPM
-          command: sudo npm update -g npm
-      - run:
-          name: Install dependencies
-          command: npm install
-      - save_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
-          paths:
-            - ./node_modules
+      - node/install-packages
       - persist_to_workspace:
-          root: .
-          paths: node_modules
-
-  # lint will perform file linting.
-  lint:
-    <<: *job_defaults
+          root: ~/repo
+          paths: .
+  test:
+    executor: default
     steps:
-      - checkout
       - attach_workspace:
-          at: ~/coralproject/rte
+          at: ~/repo
       - run:
-          name: Perform linting
+          name: Lint Source Code
           command: npm run lint
-
-  # build will build the static assets and server typescript files.
-  build:
-    <<: *job_defaults
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ~/coralproject/rte
       - run:
-          name: Build
+          name: Build Source Code
           command: npm run build
+      - run:
+          name: Lint Versions
+          command: npx @coralproject/package-version-lint
+  release:
+    executor: default
+    steps:
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Verify release version
+          command: npx @coralproject/package-version-lint --expect ${CIRCLE_TAG/#v}
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/repo/.npmrc
+      - run:
+          name: Publish package
+          command: npm publish
+
+# filter_release will add the filters for a deploy job in a workflow to make it
+# only execute on a tagged release.
+filter_release: &filter_release
+  filters:
+    branches:
+      ignore: /.*/
+    tags:
+      only: /^v.*/
 
 workflows:
-  version: 2
-  build-and-test:
+  test:
     jobs:
-      - npm_dependencies
-      - lint:
+      - dependencies
+      - test:
           requires:
-            - npm_dependencies
-      - build:
+            - dependencies
+  test-deploy:
+    jobs:
+      - dependencies:
+          <<: *filter_release
+      - test:
+          <<: *filter_release
           requires:
-            - npm_dependencies
+            - dependencies
+      - release:
+          <<: *filter_release
+          requires:
+            - test

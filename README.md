@@ -44,23 +44,26 @@ const sanitizeToDOMFragment = (html) => {
 
 ## Development
 
-```sh
+```bash
 npm run dev
 ```
 
 ## Build
 
-```sh
+```bash
 npm run build
 ```
 
-## Publish new version to NPM
+## Releasing
 
-1. Make sure you've updated the version in `package.json`
-2. Run `npm run build`
-3. Cut a new release
-4. Publish the update to NPM
+When you're ready to release a new vesrion of `@coralproject/rte`,
+you can do the following:
 
-   `npm login`
+1. Run `npm version --no-git-tag-version (major|minor|patch)` to update the
+   version number in package files.
+2. Push the changes to a new branch, and submit a PR against `main`.
+3. Once the changes have been approved, and all the code you want to deploy for
+   the version is in `main`, create a release with the version number: `v0.4.0`
+   (Note that the `v` prefix is required)
 
-   `npm publish`
+CircleCI will run your tests and release the new version for you.
