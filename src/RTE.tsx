@@ -67,6 +67,8 @@ interface PropTypes {
   onFocus?: EventHandler<FocusEvent>;
   /** onFocus is called whenenver the RTE looses focus */
   onBlur?: EventHandler<FocusEvent>;
+  /** onKeyDown is called whenever a key is pressed down on the RTE */
+  onKeyDown?: KeyboardEventHandler<Element>;
   /** onKeyPress is called whenever a key is pressed on the RTE */
   onKeyPress?: KeyboardEventHandler<Element>;
 
@@ -173,6 +175,7 @@ class RTE extends React.Component<PropTypes, State> {
     this.squire.addEventListener("focus", this.handleContentEditableFocus);
     this.squire.addEventListener("blur", this.handleContentEditableBlur);
     this.squire.addEventListener("keypress", this.handleKeyPress);
+    this.squire.addEventListener("keydown", this.handleKeyDown);
 
     // Reset shortcuts. We add shortcuts through the added features.
     [
@@ -345,6 +348,14 @@ class RTE extends React.Component<PropTypes, State> {
     }
 
     this.props.onKeyPress(event);
+  };
+
+  private handleKeyDown = (event: React.KeyboardEvent<Element>) => {
+    if (!this.props.onKeyDown) {
+      return;
+    }
+
+    this.props.onKeyDown(event);
   };
 
   private renderFeatures() {
