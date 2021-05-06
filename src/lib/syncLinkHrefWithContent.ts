@@ -7,8 +7,23 @@ const MAILTO_PROTOCOL = "mailto:";
 export default function syncLinkHrefWithContent(element: HTMLElement) {
   if (element.tagName === "A") {
     const anchorElement = element as HTMLAnchorElement;
-    const url = new URL(anchorElement.href);
-    const prefix = url.protocol === MAILTO_PROTOCOL ? MAILTO_PROTOCOL : "";
+    let url: URL | undefined,
+      prefix = "http://";
+
+    try {
+      url = new URL(anchorElement.href);
+    } catch (err) {
+      // An href may contain a url that URL doesn't accept. (e.g. "http://")
+    }
+
+    if (url) {
+      if (url.protocol === MAILTO_PROTOCOL) {
+        prefix = MAILTO_PROTOCOL;
+      } else if (anchorElement.textContent?.startsWith(url.protocol)) {
+        prefix = "";
+      }
+    }
+
     anchorElement.href = prefix + anchorElement.textContent;
     return;
   }
