@@ -1,30 +1,32 @@
-const MAILTO_PROTOCOL = "mailto:";
+const EMAIL_REGEXP = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i;
+const PROTOCOL_REGEXP = /^([a-zA-Z]+:\/\/)/;
 
 /**
  * Enforces contents of links to match their href.
  * @param element HTMLAnchorElement or HTMLElement potentially container anchor elements
  */
-export default function syncLinkHrefWithContent(element: HTMLElement) {
+export default function syncLinkHrefWithContent(element: HTMLElement): void {
   if (element.tagName === "A") {
     const anchorElement = element as HTMLAnchorElement;
-    let url: URL | undefined,
-      prefix = "http://";
-
     try {
-      url = new URL(anchorElement.href);
-    } catch (err) {
-      // An href may contain a url that URL doesn't accept. (e.g. "http://")
-    }
-
-    if (url) {
-      if (url.protocol === MAILTO_PROTOCOL) {
-        prefix = MAILTO_PROTOCOL;
-      } else if (anchorElement.textContent?.startsWith(url.protocol)) {
-        prefix = "";
+      const content = anchorElement.textContent || "";
+      const isEmail = EMAIL_REGEXP.test(content);
+      if (isEmail) {
+        anchorElement.href = `mailto:${content}`;
+        return;
       }
-    }
 
-    anchorElement.href = prefix + anchorElement.textContent;
+      let urlContent = content;
+      if (!PROTOCOL_REGEXP.test(urlContent)) {
+        urlContent = "http://" + content;
+      }
+
+      const url = new URL(urlContent);
+      anchorElement.href = url.toString();
+    } catch (e) {
+      // url was invalid.
+      anchorElement.href = "javascript:;";
+    }
     return;
   }
   const anchorElements = element.getElementsByTagName("a");
