@@ -11,20 +11,24 @@ export default function syncLinkHrefWithContent(element: HTMLElement): void {
     try {
       const content = anchorElement.textContent || "";
       const isEmail = EMAIL_REGEXP.test(content);
+
+      // Handle mailto case.
       if (isEmail) {
         anchorElement.href = `mailto:${content}`;
         return;
       }
 
+      // Handle rest.
       let urlContent = content;
       if (!PROTOCOL_REGEXP.test(urlContent)) {
+        // Add default protocol if none was set.
         urlContent = "http://" + content;
       }
 
       const url = new URL(urlContent);
       anchorElement.href = url.toString();
     } catch (e) {
-      // url was invalid.
+      // URL was invalid, use a `href` that does nothing.
       anchorElement.href = "javascript:;";
     }
     return;
