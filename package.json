@@ -73,7 +73,7 @@
       "Newer versions have problems with line breaks in iOS.",
       "Update when the following issue is resolved:",
       "https://github.com/neilj/Squire/issues/413"
-    ],
+    ]
   },
   "browsers": [
     ">1%",
