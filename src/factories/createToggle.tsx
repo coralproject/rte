@@ -22,6 +22,7 @@ export interface InjectedProps {
     React.ButtonHTMLAttributes<HTMLButtonElement>
   >;
   disabled?: boolean;
+  rteElementID?: string;
 }
 
 interface State {
@@ -84,9 +85,22 @@ function createToggle<AdditionalProps>(
     private syncInProgress = false;
 
     private execCommand = () => execCommand(this.props.squire, this.props);
-    private isActive = () =>
-      document.activeElement === this.props.squire.getRoot() &&
-      isActive(this.props.squire, this.props);
+    private isActive = () => {
+      let activeElement = document.activeElement;
+      if (document.activeElement?.shadowRoot) {
+        activeElement = document.activeElement.shadowRoot.activeElement;
+      }
+      if (this.props.rteElementID) {
+        return (
+          activeElement?.getAttribute("id") === this.props.rteElementID &&
+          isActive(this.props.squire, this.props)
+        );
+      }
+      return (
+        activeElement === this.props.squire.getRoot() &&
+        isActive(this.props.squire, this.props)
+      );
+    };
     private isDisabled = () => isDisabled(this.props.squire, this.props);
 
     public constructor(
