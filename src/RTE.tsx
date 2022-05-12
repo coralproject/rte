@@ -31,6 +31,8 @@ interface PasteEvent {
 interface PropTypes {
   /** features is an array of RTE features to be included */
   features?: ReactElement<any>[];
+  /** rteElementID is the id attached to the root RTE element */
+  rteElementID?: string;
   /** inputID is the id attached to the contenteditable field */
   inputID?: string;
   /** onChange is called whenenver the `html` value has changed */
@@ -373,6 +375,7 @@ class RTE extends React.Component<PropTypes, State> {
             ctrlKey: this.ctrlKey,
             key: b.key || i,
             ButtonComponent: this.props.ButtonComponent,
+            rteElementID: this.props.rteElementID,
             ref: this.createFeatureRefHandler(b.key || i),
           }
         );
