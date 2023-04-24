@@ -4,7 +4,7 @@ var path = require("path");
 
 module.exports = {
   mode: process.env.NODE_ENV === "production" ? "production" : "development",
-  entry: ["core-js/stable", "regenerator-runtime/runtime", "./main"],
+  entry: ["core-js/stable", "regenerator-runtime/runtime", "./index"],
   resolve: {
     extensions: [".js", ".ts", ".tsx"],
   },
