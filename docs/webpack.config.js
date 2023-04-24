@@ -54,6 +54,9 @@ module.exports = {
   devServer: {
     hot: true,
     port: 7000,
+    static: {
+      directory: path.join(__dirname, "./dist/"),
+    },
   },
   plugins: [],
 };
