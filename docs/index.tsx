@@ -10,7 +10,9 @@ import {
   OrderedList,
   UnorderedList,
   Spoiler,
-} from "../../src";
+} from "../src";
+
+import "./index.css";
 
 const DemoComponent: FunctionComponent = () => {
   const [value, setValue] = useState("");

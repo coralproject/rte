@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-var HtmlWebpackPlugin = require("html-webpack-plugin");
 var path = require("path");
 
 module.exports = {
@@ -57,5 +56,5 @@ module.exports = {
     contentBase: "./public",
     hot: true,
   },
-  plugins: [new HtmlWebpackPlugin()],
+  plugins: [],
 };
