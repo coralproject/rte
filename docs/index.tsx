@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useState } from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 import {
   CoralRTE,
@@ -36,5 +36,10 @@ const DemoComponent: FunctionComponent = () => {
 
 window.addEventListener("DOMContentLoaded", () => {
   const div = document.getElementById("demo");
-  ReactDOM.render(<DemoComponent />, div);
+  if (!div) {
+    throw new Error("unable to find demo div");
+  }
+
+  const root = createRoot(div);
+  root.render(<DemoComponent />);
 });
