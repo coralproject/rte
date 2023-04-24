@@ -52,9 +52,8 @@ module.exports = {
     ],
   },
   devServer: {
-    publicPath: "/",
-    contentBase: "./public",
     hot: true,
+    port: 7000,
   },
   plugins: [],
 };

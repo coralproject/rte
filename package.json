@@ -17,7 +17,7 @@
     "build:lib": "rm -rf ./lib && NODE_ENV=production tsc --declaration --sourceMap --noEmit false --outDir lib --module es6 && copyfiles -u 1 './src/**/*.css' lib",
     "build:cjs": "rm -rf ./cjs && NODE_ENV=production tsc --declaration --sourceMap --noEmit false --outDir cjs --module commonjs && copyfiles -u 1 './src/**/*.css' cjs",
     "build:docs": "rm -rf ./docs/dist && node docs/scripts/copy.js && webpack --config docs/webpack.config.js --context docs/",
-    "dev": "npm run build:docs && webpack serve --config docs/webpack.config.js --context docs/",
+    "dev": "webpack serve --config docs/webpack.config.js --context docs/",
     "lint": "npm-run-all --parallel lint:*",
     "lint:eslint": "eslint './src/**/*.{ts,tsx}' './docs/**/*.tsx'",
     "lint:tsc": "tsc --noEmit",
