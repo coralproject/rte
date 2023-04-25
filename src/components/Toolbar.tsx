@@ -5,6 +5,7 @@ import styles from "./Toolbar.module.css";
 
 export interface ToolbarPropTypes {
   className?: string;
+  children?: React.ReactNode[] | React.ReactNode;
 }
 
 class Toolbar extends React.Component<ToolbarPropTypes> {
