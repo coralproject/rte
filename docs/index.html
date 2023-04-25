@@ -18,5 +18,28 @@
     <h2>Demo</h2>
     <div id="demo"></div>
 
+    <code>
+      <pre>
+  () => {
+    const [value, setValue] = useState("");
+    return (
+      &lt;CoralRTE
+        value={value}
+        onChange={html =&gt; setValue(html)}
+        placeholder="Type something"
+        features={[
+          &lt;Bold /&gt;,
+          &lt;Italic /&gt;,
+          &lt;Blockquote /&gt;,
+          &lt;Strike /&gt;,
+          &lt;OrderedList /&gt;,
+          &lt;UnorderedList /&gt;,
+          &lt;Spoiler /&gt;,
+        ]}
+      /&gt;
+    )
+  }
+      </pre>
+    </code>
   </body>
 </html>
