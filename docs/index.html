@@ -1,0 +1,65 @@
+<html>
+  <head>
+    <title>RTE</title>
+    <script src="main.bundle.js"></script>
+  </head>
+  <body>
+    <h2>Coral Rich-Text-Editor</h2>
+    <p>CoralRTE is a lightweight and extensible Rich Text Editor based on React.</p>
+    <p>
+      <a href="https://github.com/coralproject/rte">GitHub</a>
+    </p>
+
+    <h2>Installation</h2>
+    <code>
+      npm install @coralproject/rte --save-dev
+    </code>
+
+    <h2>Demo</h2>
+    <div id="demo"></div>
+
+    <code>
+      <pre>
+  () => {
+    const [value, setValue] = useState("");
+    return (
+      &lt;CoralRTE
+        value={value}
+        onChange={html =&gt; setValue(html)}
+        placeholder="Type something"
+        features={[
+          &lt;Bold /&gt;,
+          &lt;Italic /&gt;,
+          &lt;Blockquote /&gt;,
+          &lt;Strike /&gt;,
+          &lt;OrderedList /&gt;,
+          &lt;UnorderedList /&gt;,
+          &lt;Spoiler /&gt;,
+        ]}
+      /&gt;
+    )
+  }
+      </pre>
+    </code>
+
+    <h2>Toolbar position at the bottom</h2>
+    <div id="demo-toolbar-bottom"></div>
+
+    <code>
+      <pre>
+  &lt;CoralRTE
+    toolbarPosition="bottom"
+    features={[
+      &lt;Bold /&gt;,
+      &lt;Italic /&gt;,
+      &lt;Blockquote /&gt;,
+      &lt;Strike /&gt;,
+      &lt;OrderedList /&gt;,
+      &lt;UnorderedList /&gt;,
+      &lt;Spoiler /&gt;,
+    ]}
+  /&gt;
+      </pre>
+    </code>
+  </body>
+</html>

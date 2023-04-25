@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-var HtmlWebpackPlugin = require("html-webpack-plugin");
 var path = require("path");
 
 module.exports = {
   mode: process.env.NODE_ENV === "production" ? "production" : "development",
-  entry: ["core-js/stable", "regenerator-runtime/runtime", "./main"],
+  entry: ["core-js/stable", "regenerator-runtime/runtime", "./index"],
   resolve: {
     extensions: [".js", ".ts", ".tsx"],
   },
@@ -53,9 +52,11 @@ module.exports = {
     ],
   },
   devServer: {
-    publicPath: "/",
-    contentBase: "./public",
     hot: true,
+    port: 7000,
+    static: {
+      directory: path.join(__dirname, "./dist/"),
+    },
   },
-  plugins: [new HtmlWebpackPlugin()],
+  plugins: [],
 };
