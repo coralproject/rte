@@ -22,7 +22,7 @@
     "build:cjs": "rm -rf ./cjs && NODE_ENV=production tsc --declaration --sourceMap --noEmit false --outDir cjs --module commonjs && copyfiles -u 1 './src/**/*.css' cjs",
     "clean:docs": "rm -rf ./docs/dist",
     "copy:docs": "node docs/scripts/copy.js",
-    "build:docs": "npm run clean:docs && npm run copy:docs && webpack --config docs/webpack.config.js --context docs/",
+    "build:docs": "export NODE_OPTIONS=--openssl-legacy-provider && npm run clean:docs && npm run copy:docs && webpack --config docs/webpack.config.js --context docs/",
     "dev": "export NODE_OPTIONS=--openssl-legacy-provider && npm run build:docs && webpack serve --config docs/webpack.config.js --context docs/",
     "lint": "npm-run-all --parallel lint:*",
     "lint:eslint": "eslint './src/**/*.{ts,tsx}' './docs/**/*.tsx'",
