@@ -1,13 +1,13 @@
 {
   "name": "@coralproject/rte",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "description": "Coral Rich Text Editor",
   "author": "The Coral Project Team @coralproject",
   "license": "Apache-2.0",
   "homepage": "https://github.com/coralproject/rte",
   "engines": {
     "node": "^18.16.0",
-    "npm": "^9.5.1"
+    "npm": "^8.0.0"
   },
   "files": [
     "lib",
